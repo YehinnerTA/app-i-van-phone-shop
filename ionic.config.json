@@ -1,0 +1,8 @@
+{
+  "name": "app-iVanPhoneShop",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "12a5b6a3"
+}
