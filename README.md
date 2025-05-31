@@ -53,7 +53,7 @@
 
 ## 📦 Installation
 
-bash
+```bash
 # Install Ionic CLI globally if you haven't done it yet
 npm install -g @ionic/cli
 
