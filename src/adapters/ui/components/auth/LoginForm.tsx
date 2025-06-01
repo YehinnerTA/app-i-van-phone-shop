@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { app_auth } from '../../services/firebaseConfig';
+import { app_auth } from '../../../../infrastructure/firebase/firebaseConfig';
 import { FirebaseError } from 'firebase/app';
 import './LoginForm.css';
 

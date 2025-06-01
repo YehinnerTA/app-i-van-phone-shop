@@ -1,0 +1,65 @@
+#container.container-bg {
+    background: linear-gradient(-35deg, orange 75%, #FB6F02 25%);
+}
+
+#container .log-reg {
+    width: 70vw;
+    margin-top: -50px;
+    margin-bottom: 10px;
+}
+
+.container-bg .input-box {
+    margin-top: -5px;
+    margin-bottom: -10px;
+}
+
+.container-bg .input-box input {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.input-box .nam-ape-label {
+    top: 315px;
+}
+
+.container-bg .input-box .email-label {
+    top: 400px;
+}
+
+.container-bg .input-box .pass-label {
+    top: 485px;
+}
+
+.input-box .cpass-label {
+    top: 570px;
+    font-size: 21px;
+}
+
+.input-box input:focus~.nam-ape-label,
+.input-box input:not(:placeholder-shown)~.nam-ape-label {
+    top: 290px;
+}
+
+.container-bg .input-box input:focus~.email-label,
+.container-bg .input-box input:not(:placeholder-shown)~.email-label {
+    top: 370px;
+}
+
+.container-bg .input-box input:focus~.pass-label,
+.container-bg .input-box input:not(:placeholder-shown)~.pass-label {
+    top: 455px;
+}
+
+.input-box input:focus~.cpass-label,
+.input-box input:not(:placeholder-shown)~.cpass-label {
+    top: 540px;
+}
+
+.error-message {
+    margin-top: 5px;
+    margin-bottom: -6px;
+    color: #ffffff;
+    font-size: 14px;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
