@@ -1,17 +1,16 @@
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
-  IonIcon,
-  IonLabel,
+  // IonIcon,
+  // IonLabel,
   IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
+  // IonTabBar,
+  // IonTabButton,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import SplashScreen from './adapters/ui/components/loader/SplashScreen';
+// import { ellipse, square, triangle } from 'ionicons/icons';
+import SplashLoader from './adapters/navigation/SplashLoader';
 import Login from './adapters/ui/pages/Login';
 import Register from './adapters/ui/pages/Register';
 import Tab1 from './adapters/ui/pages/Tab1';
@@ -53,48 +52,33 @@ setupIonicReact();
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet id='main'>
-          <Route exact path="/loading" component={SplashScreen} />
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/register" component={Register} />
+      <IonRouterOutlet id='main'>
+        <Route exact path="/" component={SplashLoader} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
 
-          {/* Redirección al login por defecto si no sta autenticado */}
-          <Route exact path="/">
-            <Redirect to="/login" />
-          </Route>
+        {/* Rutas privadas con autenticación */}
+        <Route path="/tab1" component={Tab1} />
+        <Route path="/tab2" component={Tab2} />
+        <Route path="/tab3" component={Tab3} />
 
-          {/* Rutas privadas con autenticación */}
-          <Route path="tabs">
-            <IonTabs>
-              <Route exact path="/tabs/tab1" component={Tab1} />
-              <Route exact path="/tabs/tab2" component={Tab2} />
-              <Route path="/tabs/tab3" component={Tab3} />
+        <Redirect to="/" />
+      </IonRouterOutlet>
 
-              {/* Redirección por defecto */}
-              <Route exact path="/tabs">
-                <Redirect to="/tabs/tab1" />
-              </Route>
-            </IonTabs>
-          </Route>
-        </IonRouterOutlet>
-
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tabs/tab1">
+      {/* <IonTabBar slot="bottom">
+          <IonTabButton tab="tab1" href="/tab1">
             <IonIcon aria-hidden="true" icon={triangle} />
             <IonLabel>Tab 1</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="tab2" href="/tabs/tab2">
+          <IonTabButton tab="tab2" href="/tab2">
             <IonIcon aria-hidden="true" icon={ellipse} />
             <IonLabel>Tab 2</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="tab3" href="/tabs/tab3">
+          <IonTabButton tab="tab3" href="/tab3">
             <IonIcon aria-hidden="true" icon={square} />
             <IonLabel>Tab 3</IonLabel>
           </IonTabButton>
-        </IonTabBar>
-
-      </IonTabs>
+        </IonTabBar> */}
     </IonReactRouter>
   </IonApp>
 );
