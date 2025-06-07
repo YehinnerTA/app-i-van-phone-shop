@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import './LoginForm.css';
 import './RegisterForm.css'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { app_auth, app_DB } from '../../../../infrastructure/firebase/firebaseConfig';
+import { app_auth, app_DB } from '../../../../domain/services/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 
@@ -88,7 +88,7 @@ const RegisterForm: React.FC = () => {
     return (
         <div id="container" className="container-bg">
             {/* Imagen del Logo */}
-            <img src="/assets/logos/logo-company.svg" alt="Logo" className="logo-img log-reg" />
+            <img src="/src/assets/icons/logo-company.svg" alt="Logo" className="logo-img log-reg" />
 
             {/* Mensaje de Bienvenida */}
             <strong>Diseñado para conquistarte</strong>

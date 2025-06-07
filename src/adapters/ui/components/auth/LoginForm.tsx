@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { app_auth } from '../../../../infrastructure/firebase/firebaseConfig';
+import { app_auth } from '../../../../domain/services/firebaseConfig';
 import { FirebaseError } from 'firebase/app';
 import './LoginForm.css';
 
@@ -51,7 +51,7 @@ const LoginForm: React.FC = () => {
     return (
         <div id="container">
             {/* Imagen del Logo */}
-            <img src="/assets/logos/logo-company.svg" alt="Logo" className="logo-img" />
+            <img src="/src/assets/icons/logo-company.svg" alt="Logo" className="logo-img" />
 
             {/* Mensaje de Bienvenida */}
             <strong>Diseñado para conquistarte</strong>
