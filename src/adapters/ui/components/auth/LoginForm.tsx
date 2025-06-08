@@ -1,52 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { app_auth } from '../../../../domain/services/firebaseConfig';
-import { FirebaseError } from 'firebase/app';
+import React from 'react';
+import { useLoginForm } from './hook/useLoginForm';
 import './LoginForm.css';
 
 const LoginForm: React.FC = () => {
-    const history = useHistory();
-    // Redirección -> Register
-    const handleRegister = () => {
-        history.push('/register');
-    };
-
-    // Conexion -> FireBase
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-
-    useEffect(() => {
-        setEmail('');
-        setPassword('');
-        setError('');
-    }, []);
-
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-
-        try {
-            await signInWithEmailAndPassword(app_auth, email, password);
-            setEmail('');
-            setPassword('');
-            history.push('/inicio');
-        } catch (err) {
-            const error = err as FirebaseError;
-
-            if (error.code === 'auth/user-not-found') {
-                setError('Usuario no encontrado.');
-            } else if (error.code === 'auth/wrong-password') {
-                setError('Contraseña incorrecta.');
-            } else {
-                setError('Error al iniciar sesión.');
-            }
-            console.error("FIREBASE ERROR: ", error.code, error.message);
-            setEmail('');
-            setPassword('');
-        }
-    };
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        error,
+        handleLogin,
+        handleRegister,
+    } = useLoginForm();
 
     return (
         <div id="container">
@@ -59,13 +24,25 @@ const LoginForm: React.FC = () => {
             {/* Formulario de Inicio de Sesión */}
             <form action="" className='auth-form' onSubmit={handleLogin}>
                 <div className='input-box'>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder='' />
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder=''
+                    />
                     <label className='email-label'>Email</label>
                     <i className="fa-regular fa-user"></i>
                 </div>
 
                 <div className='input-box'>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder='' />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder=''
+                    />
                     <label className='pass-label'>Contraseña</label>
                     <i className="fa fa-lock"></i>
                 </div>
