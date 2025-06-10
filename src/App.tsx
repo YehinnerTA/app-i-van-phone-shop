@@ -1,15 +1,10 @@
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
-  // IonIcon,
-  // IonLabel,
   IonRouterOutlet,
-  // IonTabBar,
-  // IonTabButton,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-// import { ellipse, square, triangle } from 'ionicons/icons';
 import SplashLoader from './adapters/navigation/SplashLoader';
 import Login from './adapters/ui/pages/Login';
 import Register from './adapters/ui/pages/Register';
