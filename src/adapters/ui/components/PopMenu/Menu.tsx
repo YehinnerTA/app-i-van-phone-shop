@@ -1,36 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
 import { IonIcon } from '@ionic/react';
 import { appsOutline, homeOutline, searchOutline, cartOutline, heartOutline, listOutline } from 'ionicons/icons';
 import './Menu.css';
+import { useMenu } from '../../hook/useMenu';
 
 const Menu: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [activeButton, setActiveButton] = useState<string | null>(null);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    const toggleMenu = () => {
-        setIsOpen(!isOpen);
-    };
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (isOpen) setIsOpen(false);
-        };
-
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll, true);
-        document.addEventListener('click', handleClickOutside, true);
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll, true);
-            document.removeEventListener('click', handleClickOutside, true);
-        };
-    }, [isOpen]);
+    const {
+        isOpen,
+        activeButton,
+        menuRef,
+        toggleMenu,
+        setActiveButton
+    } = useMenu();
 
     return (
         <div className="menu-container" ref={menuRef}>

@@ -9,8 +9,6 @@ import SplashLoader from './adapters/navigation/SplashLoader';
 import Login from './adapters/ui/pages/Login';
 import Register from './adapters/ui/pages/Register';
 import Tab1 from './adapters/ui/pages/Tab1';
-import Tab2 from './adapters/ui/pages/Tab2';
-import Tab3 from './adapters/ui/pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -54,8 +52,6 @@ const App: React.FC = () => (
 
         {/* Rutas privadas con autenticación */}
         <Route path="/tab1" component={Tab1} />
-        <Route path="/tab2" component={Tab2} />
-        <Route path="/tab3" component={Tab3} />
 
         <Redirect to="/" />
       </IonRouterOutlet>

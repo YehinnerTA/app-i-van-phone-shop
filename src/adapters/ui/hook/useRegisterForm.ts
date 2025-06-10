@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router';
-import { FirebaseAuthRepository } from '../../../../../domain/services/firebaseAuthRepository';
-import { RegisterUserUseCase } from '../../../../../application/useCases/RegisterUserUseCase';
-import { UserRegisterDto } from '../../../../../application/dtos/UserRegisterDto';
+import { FirebaseAuthRepository } from '../../../domain/services/firebaseAuthRepository';
+import { RegisterUserUseCase } from '../../../application/useCases/RegisterUserUseCase';
+import { UserRegisterDto } from '../../../application/dtos/UserRegisterDto';
 
 export const useRegisterFrom = () => {
     const history = useHistory();

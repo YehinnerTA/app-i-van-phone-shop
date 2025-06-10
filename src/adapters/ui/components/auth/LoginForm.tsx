@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLoginForm } from './hook/useLoginForm';
+import { useLoginForm } from '../../hook/useLoginForm';
 import './LoginForm.css';
 
 const LoginForm: React.FC = () => {
@@ -15,13 +15,9 @@ const LoginForm: React.FC = () => {
 
     return (
         <div id="container">
-            {/* Imagen del Logo */}
             <img src="/src/assets/icons/logo-company.svg" alt="Logo" className="logo-img" />
-
-            {/* Mensaje de Bienvenida */}
             <strong>Diseñado para conquistarte</strong>
 
-            {/* Formulario de Inicio de Sesión */}
             <form action="" className='auth-form' onSubmit={handleLogin}>
                 <div className='input-box'>
                     <input

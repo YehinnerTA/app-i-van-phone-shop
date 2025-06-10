@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { FirebaseAuthRepository } from "../../../../../domain/services/firebaseAuthRepository";
-import { LoginUserUseCase } from "../../../../../application/useCases/LoginUserUseCase";
+import { FirebaseAuthRepository } from "../../../domain/services/firebaseAuthRepository";
+import { LoginUserUseCase } from "../../../application/useCases/LoginUserUseCase";
 
 export const useLoginForm = () => {
     const history = useHistory();

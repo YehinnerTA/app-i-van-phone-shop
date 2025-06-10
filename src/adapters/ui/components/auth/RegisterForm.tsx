@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRegisterFrom } from './hook/useRegisterForm';
+import { useRegisterFrom } from '../../hook/useRegisterForm';
 import './LoginForm.css';
 import './RegisterForm.css'
 
@@ -15,13 +15,9 @@ const RegisterForm: React.FC = () => {
 
     return (
         <div id="container" className="container-bg">
-            {/* Imagen del Logo */}
             <img src="/src/assets/icons/logo-company.svg" alt="Logo" className="logo-img log-reg" />
-
-            {/* Mensaje de Bienvenida */}
             <strong>Diseñado para conquistarte</strong>
 
-            {/* Formulario de Registro */}
             <form action="" className='auth-form' onSubmit={handleRegister}>
                 <div className='input-box'>
                     <input

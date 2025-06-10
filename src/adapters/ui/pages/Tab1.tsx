@@ -1,19 +1,16 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
-import Menu from '../components/OptMenu/Menu';
+import Header from '../components/PopMenu/Header';
+import Menu from '../components/PopMenu/Menu';
 
 const Tab1: React.FC = () => {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Tab 1</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <Header />
       <IonContent fullscreen>
         <ExploreContainer name="Tab 1 page" />
-        <Menu />
       </IonContent>
+      <Menu />
     </IonPage>
   );
 };
