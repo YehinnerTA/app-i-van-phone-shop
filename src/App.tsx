@@ -8,7 +8,11 @@ import { IonReactRouter } from '@ionic/react-router';
 import SplashLoader from './adapters/navigation/SplashLoader';
 import Login from './adapters/ui/pages/Login';
 import Register from './adapters/ui/pages/Register';
-import Tab1 from './adapters/ui/pages/Tab1';
+import Home from './adapters/ui/pages/Home';
+import Payment from './adapters/ui/pages/Payment';
+import Search from './adapters/ui/pages/Search';
+import CatalogProduct from './adapters/ui/pages/CatalogProduct';
+import FeaturedProduct from './adapters/ui/pages/FeaturedProduct';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -51,25 +55,14 @@ const App: React.FC = () => (
         <Route path="/register" component={Register} />
 
         {/* Rutas privadas con autenticación */}
-        <Route path="/tab1" component={Tab1} />
+        <Route path="/home" component={Home} />
+        <Route path="/payment" component={Payment} />
+        <Route path="/search" component={Search} />
+        <Route path="/catalogproduct" component={CatalogProduct} />
+        <Route path="/featuredproduct" component={FeaturedProduct} />
 
         <Redirect to="/" />
       </IonRouterOutlet>
-
-      {/* <IonTabBar slot="bottom">
-        <IonTabButton tab="tab1" href="/tab1">
-          <IonIcon aria-hidden="true" icon={triangle} />
-          <IonLabel>Tab 1</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="tab2" href="/tab2">
-          <IonIcon aria-hidden="true" icon={ellipse} />
-          <IonLabel>Tab 2</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="tab3" href="/tab3">
-          <IonIcon aria-hidden="true" icon={square} />
-          <IonLabel>Tab 3</IonLabel>
-        </IonTabButton>
-      </IonTabBar> */}
     </IonReactRouter>
   </IonApp>
 );
