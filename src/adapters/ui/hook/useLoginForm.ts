@@ -31,7 +31,7 @@ export const useLoginForm = () => {
             await loginUserUseCase.execute({ email, password });
             setEmail('');
             setPassword('');
-            history.push('/tab1');
+            history.push('/home');
         } catch (err) {
             setError(err instanceof Error ? err.message : "Error desconocido.");
             setEmail("");

@@ -9,7 +9,7 @@ const Menu: React.FC = () => {
         activeButton,
         menuRef,
         toggleMenu,
-        setActiveButton
+        handleNavigation
     } = useMenu();
 
     return (
@@ -17,15 +17,15 @@ const Menu: React.FC = () => {
             <div className={`menu-options ${isOpen ? 'open' : ''}`}>
                 <button
                     className={`menu-btn ${activeButton === 'home' ? 'active' : ''}`}
-                    onClick={() => setActiveButton('home')}
+                    onClick={() => handleNavigation('/home')}
                     title="Inicio"
                 >
                     <IonIcon icon={homeOutline} />
                 </button>
 
                 <button
-                    className={`menu-btn ${activeButton === 'list' ? 'active' : ''}`}
-                    onClick={() => setActiveButton('list')}
+                    className={`menu-btn ${activeButton === 'catalogproduct' ? 'active' : ''}`}
+                    onClick={() => handleNavigation('/catalogproduct')}
                     title="Productos o Catálogo"
                 >
                     <IonIcon icon={listOutline} />
@@ -33,23 +33,23 @@ const Menu: React.FC = () => {
 
                 <button
                     className={`menu-btn ${activeButton === 'search' ? 'active' : ''}`}
-                    onClick={() => setActiveButton('search')}
+                    onClick={() => handleNavigation('/search')}
                     title="Buscador"
                 >
                     <IonIcon icon={searchOutline} />
                 </button>
 
                 <button
-                    className={`menu-btn ${activeButton === 'cart' ? 'active' : ''}`}
-                    onClick={() => setActiveButton('cart')}
+                    className={`menu-btn ${activeButton === 'payment' ? 'active' : ''}`}
+                    onClick={() => handleNavigation('/payment')}
                     title="Carrito de Compras"
                 >
                     <IonIcon icon={cartOutline} />
                 </button>
 
                 <button
-                    className={`menu-btn ${activeButton === 'heart' ? 'active' : ''}`}
-                    onClick={() => setActiveButton('heart')}
+                    className={`menu-btn ${activeButton === 'featuredproduct' ? 'active' : ''}`}
+                    onClick={() => handleNavigation('/featuredproduct')}
                     title="Favoritos"
                 >
                     <IonIcon icon={heartOutline} />
