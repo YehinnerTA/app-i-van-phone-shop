@@ -1,5 +1,5 @@
 import { IonContent, IonPage } from '@ionic/react';
-import Search_LandingPage from '../components/view/Search/Search_LandingPage';
+import Search_LandingPage from '../components/view/user/Search/Search_LandingPage';
 import Header from '../components/PopMenu/Header';
 import Menu from '../components/PopMenu/Menu';
 

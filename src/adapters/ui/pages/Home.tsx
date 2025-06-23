@@ -1,5 +1,5 @@
 import { IonContent, IonPage } from '@ionic/react';
-import Home_LandingPage from '../components/view/Home/Home_LandingPage';
+import Home_LandingPage from '../components/view/user/Home/Home_LandingPage';
 import Header from '../components/PopMenu/Header';
 import Menu from '../components/PopMenu/Menu';
 
