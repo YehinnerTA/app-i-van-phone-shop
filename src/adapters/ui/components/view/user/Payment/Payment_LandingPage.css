@@ -176,6 +176,12 @@
     background: transparent;
 }
 
+.item-price {
+    color: #111827;
+    font-weight: 600;
+    margin: 0;
+}
+
 .payment-card-item-discount {
     display: flex;
     align-items: center;
