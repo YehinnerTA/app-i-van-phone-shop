@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonContent, IonPage } from '@ionic/react';
-import SplashScreen from '../components/loader/SplashScreen';
+import SplashScreen from '../../components/loader/SplashScreen';
 
 const SplashPage: React.FC = () => {
     return (

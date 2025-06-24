@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import SplashPage from '../ui/pages/SplashPage';
+import SplashPage from '../ui/pages/routes/SplashPage';
 
 const SplashLoader: React.FC = () => {
     const history = useHistory();

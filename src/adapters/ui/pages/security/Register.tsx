@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonContent, IonPage } from '@ionic/react';
-import RegisterForm from '../components/auth/RegisterForm';
+import RegisterForm from '../../components/auth/RegisterForm';
 
 const Register: React.FC = () => {
     return (

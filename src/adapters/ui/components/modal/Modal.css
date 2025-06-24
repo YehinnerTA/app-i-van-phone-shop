@@ -56,11 +56,6 @@
     border-radius: 50%;
 }
 
-.modal-close:hover {
-    color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-}
-
 .modal-product-image {
     width: 200px;
     height: 200px;
@@ -149,22 +144,10 @@
     color: white;
 }
 
-.modal-button.primary:hover {
-    background: linear-gradient(135deg, #ee5a52, #ff6b6b);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-}
-
 .modal-button.secondary {
-    background: #f8f9fa;
-    color: #666;
+    background: #525252;
+    color: #000000;
     border: 2px solid #eee;
-}
-
-.modal-button.secondary:hover {
-    background: #000000;
-    border-color: #ffffff;
-    transform: translateY(-2px);
 }
 
 .badge {

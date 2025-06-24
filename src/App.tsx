@@ -6,13 +6,14 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import SplashLoader from './adapters/navigation/SplashLoader';
-import Login from './adapters/ui/pages/Login';
-import Register from './adapters/ui/pages/Register';
-import Home from './adapters/ui/pages/Home';
-import Payment from './adapters/ui/pages/Payment';
-import Search from './adapters/ui/pages/Search';
-import CatalogProduct from './adapters/ui/pages/CatalogProduct';
-import FeaturedProduct from './adapters/ui/pages/FeaturedProduct';
+import Login from './adapters/ui/pages/security/Login';
+import Register from './adapters/ui/pages/security/Register';
+import Home from './adapters/ui/pages/user/Home';
+import Payment from './adapters/ui/pages/user/Payment';
+import Search from './adapters/ui/pages/user/Search';
+import CatalogProduct from './adapters/ui/pages/user/CatalogProduct';
+import FeaturedProduct from './adapters/ui/pages/user/FeaturedProduct';
+import Profile from './adapters/ui/pages/user/Profile';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -43,7 +44,6 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './adapters/ui/theme/variables.css';
-
 setupIonicReact();
 
 const App: React.FC = () => (
@@ -60,6 +60,7 @@ const App: React.FC = () => (
         <Route path="/search" component={Search} />
         <Route path="/catalogproduct" component={CatalogProduct} />
         <Route path="/featuredproduct" component={FeaturedProduct} />
+        <Route path="/profile" component={Profile} />
 
         <Redirect to="/" />
       </IonRouterOutlet>

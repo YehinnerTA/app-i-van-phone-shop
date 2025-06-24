@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 
 export const useHeader = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -6,8 +7,13 @@ export const useHeader = () => {
     const [activeOption, setActiveOption] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    const history = useHistory();
+
     const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
+        if (!isMenuOpen) {
+            setActiveOption(null);
+        }
+        setIsMenuOpen(!isMenuOpen)
     };
 
     const handleScroll = () => {
@@ -23,6 +29,14 @@ export const useHeader = () => {
     const handleOptionClick = (option: string) => {
         setActiveOption(option);
         setIsMenuOpen(false);
+
+        if (option === 'perfil') {
+            history.push('/profile');
+        }
+
+        if (option === 'salir') {
+            history.push('/login');
+        }
     };
 
     useEffect(() => {
