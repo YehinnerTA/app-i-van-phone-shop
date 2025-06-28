@@ -5,6 +5,9 @@ export class RegisterUserUseCase {
     constructor(private readonly userRepository: IUserRepository) { }
 
     async execute(userDto: UserRegisterDto): Promise<void> {
-        await this.userRepository.registerUser(userDto);
+        await this.userRepository.registerUser({
+            ...userDto,
+            role: "cliente",
+        });
     }
 }

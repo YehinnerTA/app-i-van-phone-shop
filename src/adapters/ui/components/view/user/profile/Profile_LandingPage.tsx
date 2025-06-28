@@ -1,6 +1,6 @@
 import React from "react";
 import './Profile_LandingPage.css';
-import { useProfile } from "../../../../hook/useProfile";
+import { useProfile, formatDateOnly } from "../../../../hook/useProfile";
 
 const Profile_LandingPage: React.FC = () => {
     const {
@@ -33,9 +33,9 @@ const Profile_LandingPage: React.FC = () => {
 
             <div className="profile-section">
                 <div className="profile-avatar" id="avatar">
-                    {generateInitials(userData.fullName)}
+                    {generateInitials(userData.name)}
                 </div>
-                <div className="profile-name" id="profileName">{userData.fullName}</div>
+                <div className="profile-name" id="profileName">{userData.name}</div>
                 <div className="profile-email" id="profileEmail">{userData.email}</div>
                 <span className="profile-status">Cliente Premium</span>
 
@@ -62,9 +62,9 @@ const Profile_LandingPage: React.FC = () => {
                     <input
                         type="text"
                         className="form-input-profile"
-                        id="fullName"
-                        value={userData.fullName}
-                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                        id="name"
+                        value={userData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
                     />
                 </div>
 
@@ -180,11 +180,29 @@ const Profile_LandingPage: React.FC = () => {
                 <div className="form-row-profile">
                     <div className="form-group-profile">
                         <label className="form-label-profile">Fecha de Registro</label>
-                        <input type="text" className="form-input-profile" value="15/03/2023" disabled />
+                        <input
+                            type="text"
+                            className="form-input-profile"
+                            value={formatDateOnly(userData.createAt)}
+                            disabled
+                        />
                     </div>
                     <div className="form-group-profile">
                         <label className="form-label-profile">Último Acceso</label>
-                        <input type="text" className="form-input-profile" value="Hoy, 14:30" disabled />
+                        <input
+                            type="text"
+                            className="form-input-profile"
+                            value={
+                                userData.lastAccess
+                                    ? new Date(userData.lastAccess).toLocaleString("es-PE", {
+                                        weekday: "short",
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                    })
+                                    : ""
+                            }
+                            disabled
+                        />
                     </div>
                 </div>
             </div>
