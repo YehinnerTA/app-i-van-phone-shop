@@ -8,8 +8,11 @@ const CatalogProduct_LandingPage: React.FC = () => {
     const {
         currentIndex,
         activeCategory,
+        searchTerm,
+        setSearchTerm,
         handleCategoryClick,
         handleBuyClick,
+        filteredProducts
     } = useCatalogProduct();
 
     const {
@@ -76,75 +79,33 @@ const CatalogProduct_LandingPage: React.FC = () => {
                         </li>
                     </ul>
                 </nav>
+
                 <div className="product-content-list">
-                    {activeCategory === 'Celulares' && (
-                        <div className='product-list'>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/apple-iphone13.png" alt="Product 1" />
-                                <h3 className='product-item-title'>Smartphone X</h3>
-                                <p className='product-item-price'>$499.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/apple-iphone13.png" alt="Product 2" />
-                                <h3 className='product-item-title'>Smartphone Y</h3>
-                                <p className='product-item-price'>$599.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/apple-iphone13.png" alt="Product 3" />
-                                <h3 className='product-item-title'>Headphones Z</h3>
-                                <p className='product-item-price'>$199.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                        </div>
-                    )}
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            className="search-box"
+                            placeholder={`Buscar en ${activeCategory.toLowerCase()}...`}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <div className="search-icon">🔍</div>
+                    </div>
 
-                    {activeCategory === 'Accesorios' && (
-                        <div className='product-list'>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/audifonos.jpeg" alt="Product 4" />
-                                <h3 className='product-item-title'>Audifonos</h3>
-                                <p className='product-item-price'>$249.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/audifonos.jpeg" alt="Product 5" />
-                                <h3 className='product-item-title'>Cargador</h3>
-                                <p className='product-item-price'>$29.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/audifonos.jpeg" alt="Product 6" />
-                                <h3 className='product-item-title'>Cable</h3>
-                                <p className='product-item-price'>$19.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeCategory === 'Otros' && (
-                        <div className=' product-list'>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/funda.jpeg" alt="Product 7" />
-                                <h3 className='product-item-title'>Carca celular</h3>
-                                <p className='product-item-price'>$299.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/funda.jpeg" alt="Product 8" />
-                                <h3 className='product-item-title'>Mica</h3>
-                                <p className='product-item-price'>$399.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                            <div className="product-item" onClick={handleProductClick}>
-                                <img className='product-item-product' src="/src/assets/images/funda.jpeg" alt="Product 9" />
-                                <h3 className='product-item-title' >Splash</h3>
-                                <p className='product-item-price'>$149.99</p>
-                                <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
-                            </div>
-                        </div>
-                    )}
+                    <div className='product-list'>
+                        {filteredProducts.length > 0 ? (
+                            filteredProducts.map((product, index) => (
+                                <div className="product-item" key={index} onClick={handleProductClick}>
+                                    <img className='product-item-product' src={product.img} alt={product.title} />
+                                    <h3 className='product-item-title'>{product.title}</h3>
+                                    <p className='product-item-price'>{product.price}</p>
+                                    <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
+                                </div>
+                            ))
+                        ) : (
+                            <p className='search-error'>No se encontraron productos.</p>
+                        )}
+                    </div>
                 </div>
             </div>
 

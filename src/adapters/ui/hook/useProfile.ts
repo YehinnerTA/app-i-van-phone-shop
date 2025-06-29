@@ -106,7 +106,7 @@ export const useProfile = () => {
                 await reauthenticateWithCredential(user, credential);
                 await updatePassword(user, passwordData.newPassword);
 
-                alert("Contraseña cambiada exitosamente.");
+                console.log("Contraseña cambiada exitosamente.");
                 closePasswordModal();
             } catch (error) {
                 const FirebaseError = error as FirebaseError;

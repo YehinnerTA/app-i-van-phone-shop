@@ -2,6 +2,7 @@ import React from "react";
 import './Home.css';
 import { useModal } from '../../../../hook/useModal';
 import Modal from '../../../modal/Modal';
+import { useHome } from "../../../../hook/useHome";
 
 const Home_LandingPage: React.FC = () => {
     const {
@@ -13,6 +14,12 @@ const Home_LandingPage: React.FC = () => {
         handlePrimaryButtonClick,
         handleSecondaryButtonClick,
     } = useModal();
+
+    const {
+        searchTerm,
+        setSearchTerm,
+        filteredProducts,
+    } = useHome();
 
     return (
         <div className="home-landing">
@@ -29,7 +36,13 @@ const Home_LandingPage: React.FC = () => {
                 </div>
 
                 <div className="search-container-home">
-                    <input type="text" className="search-box-home" placeholder="Buscar celulares..." />
+                    <input
+                        type="text"
+                        className="search-box-home"
+                        placeholder="Buscar celulares..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                     <div className="search-icon-home">🔍</div>
                 </div>
             </div>
@@ -68,26 +81,13 @@ const Home_LandingPage: React.FC = () => {
             <div className="section-product-home">
                 <div className="section-title-home">Productos Destacados</div>
                 <div className="products-grid">
-                    <div className="product-card" onClick={handleProductClick}>
-                        <img src="src\assets\images\apple-iphone13.png" alt="product-image" className="product-image" />
-                        <div className="product-name">iPhone 15 Pro</div>
-                        <div className="product-price">$999 <span className="product-old-price">$1,199</span></div>
-                    </div>
-                    <div className="product-card" onClick={handleProductClick}>
-                        <img src="src\assets\images\apple-iphone13.png" alt="product-image" className="product-image" />
-                        <div className="product-name">Samsung Galaxy S24</div>
-                        <div className="product-price">$849 <span className="product-old-price">$999</span></div>
-                    </div>
-                    <div className="product-card" onClick={handleProductClick}>
-                        <img src="src\assets\images\apple-iphone13.png" alt="product-image" className="product-image" />
-                        <div className="product-name">Xiaomi 14 Ultra</div>
-                        <div className="product-price">$649 <span className="product-old-price">$799</span></div>
-                    </div>
-                    <div className="product-card" onClick={handleProductClick}>
-                        <img src="src\assets\images\apple-iphone13.png" alt="product-image" className="product-image" />
-                        <div className="product-name">OnePlus 12</div>
-                        <div className="product-price">$599 <span className="product-old-price">$699</span></div>
-                    </div>
+                    {filteredProducts.map((product, index) => (
+                        <div className="product-card" key={index} onClick={handleProductClick}>
+                            <img src={product.image} alt="product-image" className="product-image" />
+                            <div className="product-name">{product.name}</div>
+                            <div className="product-price">{product.price}<span className="product-old-price">{product.oldPrice}</span></div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
