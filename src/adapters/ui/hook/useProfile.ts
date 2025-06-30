@@ -1,38 +1,25 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { FirebaseError } from "firebase/app";
+import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { getUserProfile, updateUserProfile } from "../../../domain/services/firebaseUserService";
+import { User } from "../../../domain/entities/User";
 
-interface UserData {
-    fullName: string;
-    email: string;
-    phone: string;
-    dni: string;
-    birthDate: string;
-    address: string;
-    district: string;
-    zipCode: string;
-    city: string;
-}
-
-interface PasswordData {
-    currentPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-}
+export const formatDateOnly = (value: unknown): string => {
+    try {
+        if (!value) return "";
+        if (typeof (value as { toDate?: () => Date }).toDate === "function") {
+            value = (value as { toDate: () => Date }).toDate();
+        }
+        return new Date(value as string | number | Date).toLocaleDateString("es-PE");
+    } catch {
+        return "";
+    }
+};
 
 export const useProfile = () => {
-    const [userData, setUserData] = useState<UserData>({
-        fullName: "Juan Pérez Rodríguez",
-        email: "juan.perez@email.com",
-        phone: "+51 987 654 321",
-        dni: "12345678",
-        birthDate: "1990-05-15",
-        address: "Av. Javier Prado Este 123",
-        district: "San Isidro",
-        zipCode: "15036",
-        city: "Lima"
-    });
-
-    const [passwordData, setPasswordData] = useState<PasswordData>({
+    const [userData, setUserData] = useState<Partial<User>>({});
+    const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: "",
         confirmPassword: ""
@@ -47,61 +34,112 @@ export const useProfile = () => {
         new: false,
         confirm: false
     });
+
+    const [uid, setUid] = useState<string | null>(null);
     const history = useHistory();
 
-    // Función para generar iniciales del avatar
-    const generateInitials = (name: string): string => {
-        return name
-            .split(' ')
-            .map((word: string) => word.charAt(0))
-            .join('')
-            .substring(0, 2)
-            .toUpperCase();
-    };
-
-    // Función para manejar cambios en los inputs
-    const handleInputChange = (field: keyof UserData, value: string) => {
+    // Funciones Firebase
+    const handleInputChange = (field: keyof User, value: string) => {
         setUserData(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
-    // Función para manejar cambios en los inputs de contraseña
-    const handlePasswordChange = (field: keyof PasswordData, value: string) => {
+    const handlePasswordChange = (field: keyof typeof passwordData, value: string) => {
         setPasswordData(prev => ({
             ...prev,
             [field]: value
         }));
-        // Limpiar errores cuando el usuario empiece a escribir
         if (passwordErrors.length > 0) {
             setPasswordErrors([]);
         }
     };
 
-    // Función para guardar perfil
     const saveProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
+        if (!uid) return;
         setIsLoading(true);
         setSaveStatus('saving');
 
         try {
-            // Simular guardado
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await updateUserProfile(uid, userData);
             setSaveStatus('saved');
-
-            setTimeout(() => {
-                setSaveStatus('idle');
-            }, 2000);
+            setTimeout(() => { setSaveStatus('idle'); }, 2000);
         } catch (error) {
-            console.error('Error saving profile:', error);
+            console.error('Error al guardar perfil: ', error);
             setSaveStatus('idle');
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Función para cambiar contraseña
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const errors: string[] = [];
+
+        if (!passwordData.currentPassword) {
+            errors.push("La contraseña actual es requerida");
+        }
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            errors.push("Las contraseñas nuevas no coinciden");
+        }
+
+        if (passwordData.currentPassword === passwordData.newPassword) {
+            errors.push("La nueva contraseña debe ser diferente a la actual");
+        }
+
+        if (errors.length > 0) {
+            setPasswordErrors(errors);
+            return;
+        }
+
+        setIsLoading(true);
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (user && user.email) {
+            const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+
+            try {
+                await reauthenticateWithCredential(user, credential);
+                await updatePassword(user, passwordData.newPassword);
+
+                console.log("Contraseña cambiada exitosamente.");
+                closePasswordModal();
+            } catch (error) {
+                const FirebaseError = error as FirebaseError;
+
+                console.error("Error al cambiar la contraseña: ", FirebaseError);
+                if (FirebaseError.code === 'auth/wrong-password') {
+                    setPasswordErrors(["La contraseña actual es incorrecta."]);
+                } else if (FirebaseError.code === 'auth/too-many-requests') {
+                    setPasswordErrors(["Demasiados intentos fallidos. Intenta más tarde."]);
+                } else {
+                    setPasswordErrors(["Error al cambiar la contraseña."]);
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            setPasswordErrors(["No se encontró el usuario actual."]);
+            setIsLoading(false);
+        }
+    };
+
+    // Funciones UI y Navegación
+    const generateInitials = (name?: string): string => {
+        return name
+            ? name
+                .split(' ')
+                .map((word: string) => word.charAt(0))
+                .join('')
+                .substring(0, 2)
+                .toUpperCase()
+            : "";
+    };
+
     const changePassword = () => {
         setShowPasswordModal(true);
         setPasswordData({
@@ -112,7 +150,6 @@ export const useProfile = () => {
         setPasswordErrors([]);
     };
 
-    // Función para cerrar modal de contraseña
     const closePasswordModal = () => {
         setShowPasswordModal(false);
         setPasswordData({
@@ -128,46 +165,6 @@ export const useProfile = () => {
         });
     };
 
-    // Función para cambiar contraseña
-    const handlePasswordSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const errors: string[] = [];
-
-        // Validar contraseña actual
-        if (!passwordData.currentPassword) {
-            errors.push("La contraseña actual es requerida");
-        }
-
-        // Validar confirmación de contraseña
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            errors.push("Las contraseñas nuevas no coinciden");
-        }
-
-        // Validar que no sea la misma contraseña
-        if (passwordData.currentPassword === passwordData.newPassword) {
-            errors.push("La nueva contraseña debe ser diferente a la actual");
-        }
-
-        if (errors.length > 0) {
-            setPasswordErrors(errors);
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            // Simular cambio de contraseña
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            alert("Contraseña cambiada exitosamente");
-            closePasswordModal();
-        } catch (error) {
-            console.error('Error changing password:', error);
-            setPasswordErrors(["Error al cambiar la contraseña. Inténtalo de nuevo."]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Función para alternar visibilidad de contraseña
     const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
         setShowPasswords(prev => ({
             ...prev,
@@ -175,18 +172,56 @@ export const useProfile = () => {
         }));
     };
 
-    // Función para confirmar logout
     const confirmLogout = () => {
         history.push('/');
     };
 
-    // Función para volver atrás
     const goBack = () => {
         history.push('/home');
     };
 
-    // Efecto para animaciones de entrada
+    // Estilo dinámico
+    const getSaveButtonText = (): string => {
+        return saveStatus === 'saving'
+            ? 'Guardando...'
+            : saveStatus === 'saved'
+                ? 'Guardado ✓'
+                : 'Guardar Cambios';
+    };
+
+    const getSaveButtonStyle = (): React.CSSProperties => {
+        switch (saveStatus) {
+            case 'saving':
+                return { background: 'linear-gradient(135deg, #ffc107, #fd7e14)' };
+            case 'saved':
+                return { background: 'linear-gradient(135deg, #28a745, #20c997)' };
+            default:
+                return {};
+        }
+    };
+
+    // Logica y Animación
     useEffect(() => {
+        // Firebase
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setUid(user.uid);
+                const profile = await getUserProfile(user.uid);
+                const lastAccess = user.metadata.lastSignInTime || "";
+
+                if (profile) {
+                    setUserData({
+                        ...profile,
+                        lastAccess
+                    });
+                }
+            } else {
+                history.push("/login");
+            }
+        });
+
+        // Animación
         const elements = document.querySelectorAll('.form-section, .profile-section');
         elements.forEach((el, index) => {
             const htmlElement = el as HTMLElement;
@@ -199,31 +234,9 @@ export const useProfile = () => {
                 htmlElement.style.transform = 'translateY(0)';
             }, index * 150);
         });
-    }, []);
 
-    // Función para obtener el texto del botón de guardar
-    const getSaveButtonText = (): string => {
-        switch (saveStatus) {
-            case 'saving':
-                return 'Guardando...';
-            case 'saved':
-                return 'Guardado ✓';
-            default:
-                return 'Guardar Cambios';
-        }
-    };
-
-    // Función para obtener el estilo del botón de guardar
-    const getSaveButtonStyle = (): React.CSSProperties => {
-        switch (saveStatus) {
-            case 'saving':
-                return { background: 'linear-gradient(135deg, #ffc107, #fd7e14)' };
-            case 'saved':
-                return { background: 'linear-gradient(135deg, #28a745, #20c997)' };
-            default:
-                return {};
-        }
-    };
+        return () => unsubscribe();
+    }, [history]);
 
     return {
         userData,

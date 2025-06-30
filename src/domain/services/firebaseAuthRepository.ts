@@ -2,7 +2,7 @@ import { IUserRepository } from "../respositories/IUserRepository";
 import { UserRegisterDto } from "../../application/dtos/UserRegisterDto";
 import { UserLoginDto } from "../../application/dtos/UserLoginDto";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FirebaseError } from "firebase/app";
 import { app_auth, app_DB } from "./firebaseConfig";
 
@@ -21,6 +21,7 @@ export class FirebaseAuthRepository implements IUserRepository {
             await setDoc(doc(app_DB, 'users', user.uid), {
                 name,
                 email,
+                role: userDto.role || 'cliente',
                 createAt: new Date()
             });
         } catch (err: unknown) {
@@ -45,7 +46,14 @@ export class FirebaseAuthRepository implements IUserRepository {
         const { email, password } = userDto;
 
         try {
-            await signInWithEmailAndPassword(app_auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(app_auth, email, password);
+            const user = userCredential.user;
+
+            const userDoc = await getDoc(doc(app_DB, 'users', user.uid));
+
+            if (!userDoc.exists()) {
+                throw new Error("Tu cuenta no está completamente registrada. Contacta al administrador.");
+            }
         } catch (err: unknown) {
             const FirebaseError = err as FirebaseError;
 

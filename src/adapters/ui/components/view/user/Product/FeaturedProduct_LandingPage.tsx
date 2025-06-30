@@ -6,7 +6,10 @@ import Modal from '../../../modal/Modal';
 
 const FeaturedProduct_LandingPage: React.FC = () => {
     const {
-        handleBuyClick
+        handleBuyClick,
+        searchTermFeatured,
+        setSearchTermFeatured,
+        filteredFeaturedProducts
     } = useCatalogProduct();
 
     const {
@@ -25,19 +28,29 @@ const FeaturedProduct_LandingPage: React.FC = () => {
                 <h2 className="featured-title">Productos Favoritos</h2>
                 <p className="featured-description">¡Descubre todo lo que te encanta en un solo lugar!</p>
 
+                <div className="search-container">
+                    <input
+                        type="text"
+                        className="search-box"
+                        placeholder={`Buscar en productos destacados...`}
+                        value={searchTermFeatured}
+                        onChange={(e) => setSearchTermFeatured(e.target.value)}
+                    />
+                    <div className="search-icon">🔍</div>
+                </div>
+
                 <div className="featured-products">
-                    <div className="item-featured-product" onClick={handleProductClick}>
-                        <img src="/src/assets/images/apple-iphone13.png" alt="Producto Destacado" className="featured-product-image" />
-                        <h3 className="featured-product-title">Producto Destacado 1</h3>
-                        <p className="featured-product-price">$19.99</p>
-                        <button className="featured-product-button" onClick={handleBuyClick}>Comprar</button>
-                    </div>
-                    <div className="item-featured-product" onClick={handleProductClick}>
-                        <img src="/src/assets/images/apple-iphone13.png" alt="Producto Destacado" className="featured-product-image" />
-                        <h3 className="featured-product-title">Producto Destacado 1</h3>
-                        <p className="featured-product-price">$19.99</p>
-                        <button className="featured-product-button" onClick={handleBuyClick}>Comprar</button>
-                    </div>
+                    {filteredFeaturedProducts.map((product, index) =>
+                        <div className="item-featured-product" key={index} onClick={handleProductClick}>
+                            <img src={product.img} alt={product.title} className="featured-product-image" />
+                            <h3 className="featured-product-title">{product.title}</h3>
+                            <p className="featured-product-price">{product.price}</p>
+                            <button className="featured-product-button" onClick={handleBuyClick}>Comprar</button>
+                        </div>
+                    )}
+                    {filteredFeaturedProducts.length === 0 && (
+                        <p className="no-results">No se encontraron productos destacados.</p>
+                    )}
                 </div>
             </div>
 
