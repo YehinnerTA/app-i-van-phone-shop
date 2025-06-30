@@ -14,6 +14,7 @@ import Search from './adapters/ui/pages/user/Search';
 import CatalogProduct from './adapters/ui/pages/user/CatalogProduct';
 import FeaturedProduct from './adapters/ui/pages/user/FeaturedProduct';
 import Profile from './adapters/ui/pages/user/Profile';
+import Admin from './adapters/ui/pages/admin/Admin_pages';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -61,6 +62,12 @@ const App: React.FC = () => (
         <Route path="/catalogproduct" component={CatalogProduct} />
         <Route path="/featuredproduct" component={FeaturedProduct} />
         <Route path="/profile" component={Profile} />
+
+
+        {/* Rutas de administración */}
+        <Route path="/admin" component={Admin} />
+
+        
 
         <Redirect to="/" />
       </IonRouterOutlet>
