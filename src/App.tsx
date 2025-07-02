@@ -15,6 +15,14 @@ import CatalogProduct from './adapters/ui/pages/user/CatalogProduct';
 import FeaturedProduct from './adapters/ui/pages/user/FeaturedProduct';
 import Profile from './adapters/ui/pages/user/Profile';
 
+import Dashboard from './adapters/ui/pages/admin/Dashboard';
+import DashboardProduct from './adapters/ui/pages/admin/DashboardProduct';
+import DashboardOrders from './adapters/ui/pages/admin/DashboardOrders';
+import DashboardClient from './adapters/ui/pages/admin/DashboardClient';
+import DashboardAnalysis from './adapters/ui/pages/admin/DashboardAnalysis';
+import DashboardInventory from './adapters/ui/pages/admin/DashboardInventory';
+import DashboardSettings from './adapters/ui/pages/admin/DashboardSettings';
+
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -61,6 +69,14 @@ const App: React.FC = () => (
         <Route path="/catalogproduct" component={CatalogProduct} />
         <Route path="/featuredproduct" component={FeaturedProduct} />
         <Route path="/profile" component={Profile} />
+
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/dashboard-product" component={DashboardProduct} />
+        <Route path="/dashboard-orders" component={DashboardOrders} />
+        <Route path="/dashboard-client" component={DashboardClient} />
+        <Route path="/dashboard-analysis" component={DashboardAnalysis} />
+        <Route path="/dashboard-inventory" component={DashboardInventory} />
+        <Route path="/dashboard-settings" component={DashboardSettings} />
 
         <Redirect to="/" />
       </IonRouterOutlet>

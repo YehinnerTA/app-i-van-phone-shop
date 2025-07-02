@@ -28,10 +28,15 @@ export const useLoginForm = () => {
         const loginUserUseCase = new LoginUserUseCase(userRepository);
 
         try {
-            await loginUserUseCase.execute({ email, password });
+            const user = await loginUserUseCase.execute({ email, password });
             setEmail('');
             setPassword('');
-            history.push('/home');
+
+            if (user.role === 'admin') {
+                history.push('/dashboard');
+            } else {
+                history.push('/home');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Error desconocido.");
             setEmail("");

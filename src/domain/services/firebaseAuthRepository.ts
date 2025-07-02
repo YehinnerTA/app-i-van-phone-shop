@@ -42,18 +42,28 @@ export class FirebaseAuthRepository implements IUserRepository {
         }
     }
 
-    async loginUser(userDto: UserLoginDto): Promise<void> {
+    async loginUser(userDto: UserLoginDto): Promise<{ uid: string; email: string; role: string }> {
         const { email, password } = userDto;
 
         try {
             const userCredential = await signInWithEmailAndPassword(app_auth, email, password);
             const user = userCredential.user;
 
-            const userDoc = await getDoc(doc(app_DB, 'users', user.uid));
+            const userDocRef = doc(app_DB, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
 
             if (!userDoc.exists()) {
                 throw new Error("Tu cuenta no está completamente registrada. Contacta al administrador.");
             }
+
+            const userData = userDoc.data();
+            const role = userData?.role || 'cliente';
+
+            return {
+                uid: user.uid,
+                email: user.email ?? '',
+                role: role
+            };
         } catch (err: unknown) {
             const FirebaseError = err as FirebaseError;
 
@@ -66,4 +76,5 @@ export class FirebaseAuthRepository implements IUserRepository {
             }
         }
     }
+
 }
