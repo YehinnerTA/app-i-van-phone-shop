@@ -201,17 +201,6 @@ export const useProfile = () => {
                 : 'Guardar Cambios';
     };
 
-    const getSaveButtonStyle = (): React.CSSProperties => {
-        switch (saveStatus) {
-            case 'saving':
-                return { background: 'linear-gradient(135deg, #ffc107, #fd7e14)' };
-            case 'saved':
-                return { background: 'linear-gradient(135deg, #28a745, #20c997)' };
-            default:
-                return {};
-        }
-    };
-
     // Logica y Animación
     useEffect(() => {
         // Firebase
@@ -266,7 +255,6 @@ export const useProfile = () => {
         confirmLogout,
         goBack,
         getSaveButtonText,
-        getSaveButtonStyle,
         closePasswordModal,
         passwordErrors,
     };

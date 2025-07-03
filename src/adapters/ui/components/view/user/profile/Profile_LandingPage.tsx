@@ -19,7 +19,6 @@ const Profile_LandingPage: React.FC = () => {
         confirmLogout,
         goBack,
         getSaveButtonText,
-        getSaveButtonStyle,
         closePasswordModal,
         passwordErrors,
     } = useProfile();
@@ -37,7 +36,7 @@ const Profile_LandingPage: React.FC = () => {
                 </div>
                 <div className="profile-name" id="profileName">{userData.name}</div>
                 <div className="profile-email" id="profileEmail">{userData.email}</div>
-                <span className="profile-status">Cliente Premium</span>
+                <span className="profile-status">{userData.role}</span>
 
                 <div className="stats-grid-profile">
                     <div className="stat-card-profile">
@@ -212,7 +211,6 @@ const Profile_LandingPage: React.FC = () => {
                     className="btn-profile btn-primary-profile"
                     onClick={saveProfile}
                     disabled={isLoading}
-                    style={getSaveButtonStyle()}
                 >
                     {getSaveButtonText()}
                 </button>

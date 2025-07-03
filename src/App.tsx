@@ -39,7 +39,6 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-import ProtectedRoute from './adapters/navigation/ProtectedRoute';
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -55,9 +54,6 @@ import '@ionic/react/css/palettes/dark.system.css';
 import './adapters/ui/theme/variables.css';
 setupIonicReact();
 
-const isAuthenticated = localStorage.getItem('token') !== null;
-const userRole = localStorage.getItem('role') || '';
-
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
@@ -66,22 +62,21 @@ const App: React.FC = () => (
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
 
-        {/* Rutas privadas para cliente */}
-        <ProtectedRoute path="/home" component={Home} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/payment" component={Payment} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/search" component={Search} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/catalogproduct" component={CatalogProduct} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/featuredproduct" component={FeaturedProduct} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/profile" component={Profile} roles={['cliente']} isAuthenticated={isAuthenticated} userRole={userRole} />
+        {/* Rutas privadas con autenticación */}
+        <Route path="/home" component={Home} />
+        <Route path="/payment" component={Payment} />
+        <Route path="/search" component={Search} />
+        <Route path="/catalogproduct" component={CatalogProduct} />
+        <Route path="/featuredproduct" component={FeaturedProduct} />
+        <Route path="/profile" component={Profile} />
 
-        {/* Rutas privadas para admin */}
-        <ProtectedRoute path="/dashboard" component={Dashboard} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-product" component={DashboardProduct} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-orders" component={DashboardOrders} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-client" component={DashboardClient} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-analysis" component={DashboardAnalysis} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-inventory" component={DashboardInventory} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
-        <ProtectedRoute path="/dashboard-settings" component={DashboardSettings} roles={['admin']} isAuthenticated={isAuthenticated} userRole={userRole} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/dashboard-product" component={DashboardProduct} />
+        <Route path="/dashboard-orders" component={DashboardOrders} />
+        <Route path="/dashboard-client" component={DashboardClient} />
+        <Route path="/dashboard-analysis" component={DashboardAnalysis} />
+        <Route path="/dashboard-inventory" component={DashboardInventory} />
+        <Route path="/dashboard-settings" component={DashboardSettings} />
 
         <Redirect to="/" />
       </IonRouterOutlet>
