@@ -13,4 +13,5 @@ export interface User {
     city?: string;
 
     lastAccess?: string;
+    role: 'admin' | 'cliente';
 }

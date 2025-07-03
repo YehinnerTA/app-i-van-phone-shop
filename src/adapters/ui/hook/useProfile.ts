@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { getUserProfile, updateUserProfile } from "../../../domain/services/firebaseUserService";
 import { User } from "../../../domain/entities/User";
+
+interface LocationState {
+    from?: string;
+}
 
 export const formatDateOnly = (value: unknown): string => {
     try {
@@ -37,6 +41,7 @@ export const useProfile = () => {
 
     const [uid, setUid] = useState<string | null>(null);
     const history = useHistory();
+    const location = useLocation<LocationState>();
 
     // Funciones Firebase
     const handleInputChange = (field: keyof User, value: string) => {
@@ -177,7 +182,14 @@ export const useProfile = () => {
     };
 
     const goBack = () => {
-        history.push('/home');
+        const redirectTo = location.state?.from;
+        if (redirectTo) {
+            history.push(redirectTo);
+        } else if (userData?.role === "admin") {
+            history.push("/dashboard");
+        } else {
+            history.push("/home");
+        }
     };
 
     // Estilo dinámico
