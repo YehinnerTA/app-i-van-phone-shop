@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { getUserProfile, updateUserProfile } from "../../../domain/services/firebaseUserService";
 import { User } from "../../../domain/entities/User";
+
+interface LocationState {
+    from?: string;
+}
 
 export const formatDateOnly = (value: unknown): string => {
     try {
@@ -37,6 +41,7 @@ export const useProfile = () => {
 
     const [uid, setUid] = useState<string | null>(null);
     const history = useHistory();
+    const location = useLocation<LocationState>();
 
     // Funciones Firebase
     const handleInputChange = (field: keyof User, value: string) => {
@@ -177,7 +182,14 @@ export const useProfile = () => {
     };
 
     const goBack = () => {
-        history.push('/home');
+        const redirectTo = location.state?.from;
+        if (redirectTo) {
+            history.push(redirectTo);
+        } else if (userData?.role === "admin") {
+            history.push("/dashboard");
+        } else {
+            history.push("/home");
+        }
     };
 
     // Estilo dinámico
@@ -187,17 +199,6 @@ export const useProfile = () => {
             : saveStatus === 'saved'
                 ? 'Guardado ✓'
                 : 'Guardar Cambios';
-    };
-
-    const getSaveButtonStyle = (): React.CSSProperties => {
-        switch (saveStatus) {
-            case 'saving':
-                return { background: 'linear-gradient(135deg, #ffc107, #fd7e14)' };
-            case 'saved':
-                return { background: 'linear-gradient(135deg, #28a745, #20c997)' };
-            default:
-                return {};
-        }
     };
 
     // Logica y Animación
@@ -254,7 +255,6 @@ export const useProfile = () => {
         confirmLogout,
         goBack,
         getSaveButtonText,
-        getSaveButtonStyle,
         closePasswordModal,
         passwordErrors,
     };
