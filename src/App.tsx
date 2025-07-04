@@ -21,7 +21,7 @@ import DashboardOrders from './adapters/ui/pages/admin/DashboardOrders';
 import DashboardClient from './adapters/ui/pages/admin/DashboardClient';
 import DashboardAnalysis from './adapters/ui/pages/admin/DashboardAnalysis';
 import DashboardInventory from './adapters/ui/pages/admin/DashboardInventory';
-import DashboardSettings from './adapters/ui/pages/admin/DashboardSettings';
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -76,8 +76,7 @@ const App: React.FC = () => (
         <Route path="/dashboard-client" component={DashboardClient} />
         <Route path="/dashboard-analysis" component={DashboardAnalysis} />
         <Route path="/dashboard-inventory" component={DashboardInventory} />
-        <Route path="/dashboard-settings" component={DashboardSettings} />
-
+        
         <Redirect to="/" />
       </IonRouterOutlet>
     </IonReactRouter>

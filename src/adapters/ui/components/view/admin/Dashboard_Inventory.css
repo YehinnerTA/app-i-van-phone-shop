@@ -1,0 +1,163 @@
+.inventory-bg {
+  background: #1c1c1c; /* Color de fondo más oscuro */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+  font-family: 'Arial', sans-serif; /* Fuente más moderna */
+}
+
+.inventory-search-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 70px;
+  margin-bottom: 50px;
+}
+
+.inventory-search {
+  width: 320px;
+  padding: 14px 18px;
+  border-radius: 24px;
+  border: none;
+  font-size: 1.1rem;
+  background: #f0f0f0; /* Color de fondo más claro */
+  color: #333; /* Color de texto más oscuro */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+  outline: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: background 0.3s, box-shadow 0.3s; /* Transición suave */
+}
+
+.inventory-search:hover {
+  background: #e0e0e0; /* Cambio de color al pasar el mouse */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra más intensa */
+}
+
+.inventory-search::placeholder {
+  color: #888; /* Color de placeholder más suave */
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.inventory-list {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 18px;
+  box-sizing: border-box;
+}
+
+.inventory-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+  padding: 12px 0;
+  border: 1.5px solid #ddd; /* Color de borde más claro */
+  transition: transform 0.2s; /* Transición para el efecto hover */
+}
+
+.inventory-card:hover {
+  transform: translateY(-2px); /* Efecto de elevación al pasar el mouse */
+}
+
+.inventory-card-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 0 18px;
+  background: #fff;
+  border: 1.5px solid #ddd; /* Color de borde más claro */
+}
+
+.inventory-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inventory-card-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.inventory-card-oferta {
+  font-size: 0.95rem;
+  color: #ff9900;
+  font-weight: 600;
+  display: flex;
+  gap: 16px;
+}
+
+.inventory-card-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding-right: 18px; 
+}
+
+.inventory-cantidad-btn {
+  background: #fff;
+  border: 1.5px solid #aaa;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+
+.inventory-cantidad-btn:hover {
+  background: #ffe259;
+  color: #ff9900;
+  border-color: #ff9900;
+}
+
+.inventory-cantidad-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 8px;
+  color: #222;
+  min-width: 18px;
+  text-align: center;
+}
+
+.inventory-cantidad-num.zero {
+  color: #e53935; /* Color rojo para cantidades cero */
+}
+
+.inventory-add-offer-btn {
+  margin: 32px 0 0 0;
+  width: 220px;
+  padding: 14px 0;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  background: #f0f0f0; /* Color de fondo más claro */
+  color: #434242;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s; /* Transición suave */
+  text-transform: lowercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+}
+
+.inventory-add-offer-btn:hover {
+  background: linear-gradient(90deg, #ffb347 0%, #ff8008 100%);
+  color: #fff;
+  transform: translateY(-2px); /* Efecto de elevación al pasar el mouse */
+}
