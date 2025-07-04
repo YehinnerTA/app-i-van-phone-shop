@@ -32,14 +32,6 @@ const Menu: React.FC = () => {
                 </button>
 
                 <button
-                    className={`menu-btn ${activeButton === 'search' ? 'active' : ''}`}
-                    onClick={() => handleNavigation('/search')}
-                    title="Buscador"
-                >
-                    <IonIcon icon={searchOutline} />
-                </button>
-
-                <button
                     className={`menu-btn ${activeButton === 'payment' ? 'active' : ''}`}
                     onClick={() => handleNavigation('/payment')}
                     title="Carrito de Compras"

@@ -10,7 +10,7 @@ import Login from './adapters/ui/pages/security/Login';
 import Register from './adapters/ui/pages/security/Register';
 import Home from './adapters/ui/pages/user/Home';
 import Payment from './adapters/ui/pages/user/Payment';
-import Search from './adapters/ui/pages/user/Search';
+
 import CatalogProduct from './adapters/ui/pages/user/CatalogProduct';
 import FeaturedProduct from './adapters/ui/pages/user/FeaturedProduct';
 import Profile from './adapters/ui/pages/user/Profile';
@@ -65,7 +65,7 @@ const App: React.FC = () => (
         {/* Rutas privadas con autenticación */}
         <Route path="/home" component={Home} />
         <Route path="/payment" component={Payment} />
-        <Route path="/search" component={Search} />
+        
         <Route path="/catalogproduct" component={CatalogProduct} />
         <Route path="/featuredproduct" component={FeaturedProduct} />
         <Route path="/profile" component={Profile} />
