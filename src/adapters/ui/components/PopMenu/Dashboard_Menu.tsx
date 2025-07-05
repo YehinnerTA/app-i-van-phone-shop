@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { close, archive, bag, cart, menu, people, phonePortrait, settings, trendingUpOutline } from 'ionicons/icons';
+import { close, archive, bag, cart, menu, people, phonePortrait, trendingUpOutline } from 'ionicons/icons';
 import './Menu.css';
 import { useMenu } from '../../hook/useMenu';
 
@@ -23,9 +23,7 @@ const Dashboard_Menu: React.FC = () => {
         { icon: bag, text: 'Productos' },
         { icon: cart, text: 'Pedidos' },
         { icon: people, text: 'Clientes' },
-        { icon: null, text: 'Análisis' },
         { icon: archive, text: 'Inventario' },
-        { icon: settings, text: 'Configuración' }
     ];
 
     return (
