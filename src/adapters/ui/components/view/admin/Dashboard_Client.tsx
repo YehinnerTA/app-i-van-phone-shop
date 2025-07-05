@@ -1,167 +1,147 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Dashboard_Client.css';
-import iconProducto from '../../../../../assets/icons/Producto.svg';
-
-const productos = [
-    { id: 1, nombre: 'Producto', imagen: iconProducto },
-    { id: 2, nombre: 'Producto', imagen: iconProducto },
-    { id: 3, nombre: 'Producto', imagen: iconProducto },
-    { id: 4, nombre: 'Producto', imagen: iconProducto },
-    { id: 5, nombre: 'Producto', imagen: iconProducto },
-];
+import { useDashboardClient } from '../../../hook/useDashboardClient';
 
 const Dashboard_Client: React.FC = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [previewImg, setPreviewImg] = useState<string | null>(null);
-    const [nombre, setNombre] = useState('');
-    const [email, setEmail] = useState('');
-    const [celular, setCelular] = useState('');
-    const [dni, setDni] = useState('');
-    const [contrasena, setContrasena] = useState('');
+  const {
+    showModal,
+    setShowModal,
+    previewImg,
+    handleImageChange,
+    nombre,
+    setNombre,
+    email,
+    setEmail,
+    celular,
+    setCelular,
+    dni,
+    setDni,
+    contrasena,
+    setContrasena,
+    handleLimpiar,
+    productos,
+  } = useDashboardClient();
 
-    // Maneja la carga de la imagen
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                setPreviewImg(ev.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // Limpiar todos los campos del modal
-    const handleLimpiar = () => {
-    setPreviewImg(null);
-    setNombre('');
-    setEmail('');
-    setCelular('');
-    setDni('');
-    setContrasena('');
-    };
-
-    return (
-        <div className="dashboard-bg">
-            <div className="dashboard-btns-row">
-                <button
-                    className="dashboard-btn dashboard-btn-add"
-                    onClick={() => setShowModal(true)}
-                >
-                    Añadir
-                </button>
-                <button className="dashboard-btn dashboard-btn-export">Exportar</button>
+  return (
+    <div className="dashboard-bg">
+      <div className="dashboard-btns-row">
+        <button
+          className="dashboard-btn dashboard-btn-add"
+          onClick={() => setShowModal(true)}
+        >
+          Añadir
+        </button>
+        <button className="dashboard-btn dashboard-btn-export">Exportar</button>
+      </div>
+      <div className="dashboard-search-section">
+        <input
+          type="text"
+          placeholder="buscador"
+          className="dashboard-search dashboard-search-gray"
+        />
+        <div className="dashboard-list">
+          {productos.map((producto) => (
+            <div className="dashboard-card dashboard-card-yellow" key={producto.id}>
+              <img src={producto.imagen} alt="icono" className="dashboard-card-img" />
+              <span className="dashboard-card-title">{producto.nombre}</span>
             </div>
-            <div className="dashboard-search-section">
+          ))}
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay-admin">
+          <div className="modal-content-admin">
+            <button className="modal-close-admin" onClick={() => setShowModal(false)}>
+              &times;
+            </button>
+            <div className="modal-img-upload-admin">
+              <div className="modal-img-box-admin">
+                {previewImg ? (
+                  <img
+                    src={previewImg}
+                    alt="preview"
+                    className='img-client'
+                  />
+                ) : (
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <circle cx="8.5" cy="12.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                )}
+              </div>
+              <label className="modal-upload-btn-admin" >
+                Subir imagen
                 <input
-                    type="text"
-                    placeholder="buscador"
-                    className="dashboard-search dashboard-search-gray"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
-                <div className="dashboard-list">
-                    {productos.map((producto) => (
-                        <div className="dashboard-card dashboard-card-yellow" key={producto.id}>
-                            <img src={producto.imagen} alt="icono" className="dashboard-card-img" />
-                            <span className="dashboard-card-title">{producto.nombre}</span>
-                        </div>
-                    ))}
-                </div>
+              </label>
             </div>
-
-            {/* Modal */}
-            {showModal && (
-  <div className="modal-overlay-admin">
-    <div className="modal-content-admin">
-      <button className="modal-close-admin" onClick={() => setShowModal(false)}>
-        &times;
-      </button>
-      <div className="modal-img-upload-admin">
-        <div className="modal-img-box-admin">
-          {previewImg ? (
-            <img
-              src={previewImg}
-              alt="preview"
-              style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 12 }}
-            />
-          ) : (
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <circle cx="8.5" cy="12.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
-          )}
+            <div className="modal-form-admin">
+              <label>
+                Nombre:
+                <input
+                  type="text"
+                  className="modal-input-admin"
+                  value={nombre}
+                  onChange={e => setNombre(e.target.value)}
+                />
+              </label>
+              <label>
+                Email:
+                <input
+                  type="text"
+                  className="modal-input-admin"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </label>
+              <label>
+                Celular:
+                <input
+                  type="text"
+                  className="modal-input-admin"
+                  value={celular}
+                  onChange={e => setCelular(e.target.value)}
+                />
+              </label>
+              <label>
+                Dni:
+                <input
+                  type="text"
+                  className="modal-input-admin"
+                  value={dni}
+                  onChange={e => setDni(e.target.value)}
+                />
+              </label>
+              <label>
+                Contraseña:
+                <textarea
+                  className="modal-textarea-admin"
+                  value={contrasena}
+                  onChange={e => setContrasena(e.target.value)}
+                />
+              </label>
+              <div className='modal-btn-group-add'>
+                <button className="modal-add-btn-admin">Agregar</button>
+                <button
+                  type="button"
+                  className="modal-add-btn-admin modal-clear-btn-admin"
+                  onClick={handleLimpiar}
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <label className="modal-upload-btn-admin" style={{ cursor: 'pointer' }}>
-          Subir imagen
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageChange}
-          />
-        </label>
-      </div>
-      <div className="modal-form-admin">
-        <label>
-          Nombre:
-          <input
-            type="text"
-            className="modal-input-admin"
-            value={nombre}
-            onChange={e => setNombre(e.target.value)}
-          />
-        </label>
-        <label>
-          Email:
-          <input
-            type="text"
-            className="modal-input-admin"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-        </label>
-        <label>
-          Celular:
-          <input
-            type="text"
-            className="modal-input-admin"
-            value={celular}
-            onChange={e => setCelular(e.target.value)}
-          />
-        </label>
-        <label>
-          Dni:
-          <input
-            type="text"
-            className="modal-input-admin"
-            value={dni}
-            onChange={e => setDni(e.target.value)}
-          />
-        </label>
-        <label>
-          Contraseña:
-          <textarea
-            className="modal-textarea-admin"
-            value={contrasena}
-            onChange={e => setContrasena(e.target.value)}
-          />
-        </label>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '10px' }}>
-          <button className="modal-add-btn-admin">Agregar</button>
-          <button
-            type="button"
-            className="modal-add-btn-admin modal-clear-btn-admin"
-            onClick={handleLimpiar}
-          >
-            Limpiar
-          </button>
-        </div>
-      </div>
+      )}
     </div>
-  </div>
-)}
-        </div>
-    );
+  );
 };
 
 export default Dashboard_Client;
