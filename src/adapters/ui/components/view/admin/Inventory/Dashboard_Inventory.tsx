@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard_Inventory.css';
-import { useDashboardInventory } from '../../../hook/useDashboardInventory';
+import { useDashboardInventory } from '../../../../hook/useDashboardInventory';
 
 const Dashboard_Inventory: React.FC = () => {
   const {

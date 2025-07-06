@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard_Orders.css';
-import useDashboardOrders from '../../../hook/useDashboardOrders';
+import useDashboardOrders from '../../../../hook/useDashboardOrders';
 
 const Dashboard_Orders: React.FC = () => {
   const {

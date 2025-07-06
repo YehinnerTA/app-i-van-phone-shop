@@ -1,6 +1,6 @@
 import { IonContent, IonPage } from '@ionic/react';
 import Header from '../../components/PopMenu/Header';
-import Dashboard_Inventory from '../../components/view/admin/Dashboard_Inventory';
+import Dashboard_Inventory from '../../components/view/admin/Inventory/Dashboard_Inventory';
 import Dashboard_Menu from '../../components/PopMenu/Dashboard_Menu';
 
 const Inventory: React.FC = () => {

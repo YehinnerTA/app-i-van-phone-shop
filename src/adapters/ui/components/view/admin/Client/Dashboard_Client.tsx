@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard_Client.css';
-import { useDashboardClient } from '../../../hook/useDashboardClient';
+import { useDashboardClient } from '../../../../hook/useDashboardClient';
 
 const Dashboard_Client: React.FC = () => {
   const {
