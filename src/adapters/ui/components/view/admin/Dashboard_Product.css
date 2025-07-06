@@ -1,316 +1,369 @@
-.dashboard-bg {
-  background: rgb(40, 39, 39);
-  min-height: 100vh;
-  padding: 0;
+.dashboard-product {
+  width: 100%;
+  height: 10vh;
+}
+
+.dashboard-product-header {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  color: white;
+  padding: 1rem 0;
+}
+
+.dashboard-product-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.dashboard-product-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 15px 0 0 0;
+}
+
+.dashboard-product-add-btn {
+  margin: 1rem 1.5rem;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.dashboard-product-main {
+  width: 100%;
+  margin: 0;
+  padding: 0 1.5rem;
+}
+
+.dashboard-product-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-product-stat {
+  flex: 1;
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dashboard-product-stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+.dashboard-product-stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.dashboard-product-search {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.dashboard-btn {
-  width: 220px;
-  padding: 16px 0;
-  border: none;
-  border-radius: 24px;
-  font-weight: 700;
-  font-size: 1.15rem;
-  margin-bottom: 16px;
-  background: #fff;
-  color: #222;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
-  outline: none;
+.dashboard-product-search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
 }
 
-.dashboard-btn-add {
-  
-  background: #fff;
-  color: #222;
-  border: 2px solid #ffe259;
-  font-size: 1.15rem;
-}
-
-.dashboard-btn-export {
-  background: #fff;
-  color: #222;
-  border: 2px solid #ffe259;
-  font-size: 1.15rem;
-  
-}
-
-.dashboard-btn-add,
-.dashboard-btn-export {
-  width: 160px;
-}
-
-.dashboard-btn:hover,
-.dashboard-btn:focus {
-  background: linear-gradient(50deg, #ffe259 25%, #ffa751 50%);
-  color: #000000;
-  box-shadow: 0 8px 24px rgba(255,153,0,0.18);
-  transform: translateY(-2px) scale(1.03);
-}
-
-.dashboard-search-section {
-  width: 300px;
-  margin-bottom: 10px;
-}
-
-.dashboard-search {
+.dashboard-product-filter {
   width: 100%;
-  padding: 16px 18px;
-  font-size: 1.08rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  background: #ccc;
+  color: black;
+}
+
+.dashboard-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-product-card {
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dashboard-product-card-image {
+  height: 200px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-product-card-placeholder {
+  font-size: 3rem;
+  color: #ccc;
+}
+
+.dashboard-product-card-info {
+  padding: 1.5rem;
+}
+
+.dashboard-product-card-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.dashboard-product-card-price {
+  color: #ff6b35;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-product-card-stock {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.dashboard-product-card-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.dashboard-product-btn {
+  flex: 1;
+  padding: 0.5rem;
   border: none;
-  border-radius: 12px 12px 0 0;
-  margin-bottom: 0;
+  border-radius: 0.25rem;
   font-weight: 500;
-  box-sizing: border-box;
-  background: #f3f3f3;
-  color: #222;
-  outline: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard-product-btn-details {
+  background: #ff6b35;
+  color: white;
+}
+
+.dashboard-product-btn-delete {
+  background: #333;
+  color: white;
+}
+
+/* ===== ESTILOS PARA MODAL ===== */
+.dashboard-product-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.dashboard-product-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dashboard-product-modal-content {
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 20px;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  transform: scale(0.9) translateY(-20px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-product-modal.active .dashboard-product-modal-content {
+  transform: scale(1) translateY(0);
+}
+
+.dashboard-product-modal-close {
+  width: 40px;
+  height: 40px;
+  top: 1.5rem;
+  right: 1.5rem;
+  position: absolute;
+  background: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.dashboard-product-modal h2 {
+  margin: 0 0 2rem 0;
+  color: #333;
+  font-size: 1.65rem;
+  font-weight: 700;
+  padding-right: 3rem;
+}
+
+/* Estilos para formularios */
+.dashboard-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dashboard-product-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-product-form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.dashboard-search::placeholder {
-  color: #888;
-  font-weight: 400;
-}
-
-.dashboard-list {
-  width: 100%;
-  background: #fff;
-  border-radius: 0 0 16px 16px;
-  overflow-y: auto;
-  max-height: 240px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-  padding-bottom: 12px;
-  border-top: 2px solid #ffe259;
-}
-
-.dashboard-card {
-  display: flex;
-  align-items: center;
-  min-height: 52px;
-  margin: 16px 16px 0 16px;
+.dashboard-product-form-group input,
+.dashboard-product-form-group select,
+.dashboard-product-form-group textarea {
+  padding: 1rem;
+  border: 2px solid #e9ecef;
   border-radius: 12px;
-  padding: 0 16px;
-  font-weight: 700;
-  font-size: 1.12rem;
-  box-sizing: border-box;
-  background: #fffbe6;
-  box-shadow: 0 2px 8px rgba(255, 165, 81, 0.10);
-  border: 1.5px solid #ffe259;
-  transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
-  cursor: pointer;
-}
-
-.dashboard-card-yellow {
-  background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
-  color: #222;
-  border: 1.5px solid #ffda47;
-}
-
-.dashboard-card:hover {
-  background: #fff3c1;
-  box-shadow: 0 8px 24px rgba(255,153,0,0.18);
-  transform: scale(1.03);
-}
-
-.dashboard-card-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-right: 16px;
-  background: #fff;
-  border: 2px solid #ffe259;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.dashboard-card-title {
-  font-weight: 700;
-  font-size: 1.12rem;
-  color: #222;
-  letter-spacing: 0.2px;
-}
-
-
-/* Modal Overlay */
-.modal-overlay-admin {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(30, 30, 30, 0.55);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: modal-fadein-admin 0.2s;
-}
-
-@keyframes modal-fadein-admin {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Modal Content */
-.modal-content-admin {
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.22);
-  padding: 36px 28px 28px 28px;
-  position: relative;
-  width: 340px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: modal-pop-admin 0.22s cubic-bezier(.4,1.4,.6,1);
-}
-
-@keyframes modal-pop-admin {
-  from { transform: scale(0.92); opacity: 0.7; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Botón cerrar (X) */
-.modal-close-admin {
-  position: absolute;
-  top: 14px;
-  right: 18px;
-  background: none;
-  border: none;
-  font-size: 2.1rem;
-  color: #222;
-  cursor: pointer;
-  transition: color 0.2s, transform 0.15s;
-  z-index: 10;
-  line-height: 1;
-}
-.modal-close-admin:hover {
-  color: #ff9900;
-  transform: scale(1.15) rotate(8deg);
-}
-
-/* Imagen y botón de subir */
-.modal-img-upload-admin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 22px;
-}
-.modal-img-box-admin {
-  width: 100px;
-  height: 100px;
-  background: #f8f8f8;
-  border: 2.5px dashed #ff9900;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  transition: border-color 0.2s;
-}
-.modal-img-box-admin img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(255,153,0,0.10);
-}
-.modal-img-box-admin:hover {
-  border-color: #ffa751;
-}
-
-.modal-upload-btn-admin {
-  background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
-  border: none;
-  border-radius: 10px;
-  padding: 7px 22px;
-  font-weight: 700;
   font-size: 1rem;
-  color: #222;
-  cursor: pointer;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(255,153,0,0.08);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  display: inline-block;
-}
-.modal-upload-btn-admin:hover {
-  background: #ff9900;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(255,153,0,0.18);
+  background: white;
+  color: #333;
+  transition: all 0.3s ease;
 }
 
-/* Formulario */
-.modal-form-admin {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.modal-form-admin label {
-  font-weight: 600;
-  color: #222;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 1.04rem;
-}
-.modal-input-admin, .modal-textarea-admin {
-  width: 100%;
-  border: 1.7px solid #ffe259;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 1rem;
-  margin-top: 2px;
-  background: #f7f7f7;
-  resize: none;
-  transition: border-color 0.18s;
-}
-.modal-input-admin:focus, .modal-textarea-admin:focus {
-  border-color: #ff9900;
+.dashboard-product-form-group input:focus,
+.dashboard-product-form-group select:focus,
+.dashboard-product-form-group textarea:focus {
   outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
-.modal-textarea-admin {
-  min-height: 40px;
-  max-height: 40px;
+
+.dashboard-product-form-group textarea {
+  resize: vertical;
+  min-height: 100px;
 }
-.modal-add-btn-admin {
-  background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
+
+.dashboard-product-form-group input[type="file"] {
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-style: dashed;
+  border-color: #adb5bd;
+  cursor: pointer;
+}
+
+/* Campos de solo lectura */
+.dashboard-product-form-group input[readonly],
+.dashboard-product-form-group textarea[readonly] {
+  background: #f8f9fa;
+  color: #495057;
+  cursor: not-allowed;
+}
+
+/* Botones de modal */
+.dashboard-product-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid #e9ecef;
+}
+
+.dashboard-product-btn-modal {
+  min-width: 120px;
+  padding: 0.75rem;
   border: none;
-  border-radius: 10px;
-  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+.dashboard-product-btn-primary {
+  background: #ff6b35;
+  color: white;
+}
+
+.dashboard-product-btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.dashboard-product-btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+/* Estilos específicos para modal de eliminar */
+.dashboard-product-delete-message {
+  color: #495057;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.dashboard-product-delete-info {
+  background: #f8f9fa;
+  color: #333;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-left: 4px solid #ff6b35;
+}
+
+.dashboard-product-delete-info strong {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.dashboard-product-delete-price {
+  color: #ff6b35;
   font-weight: 700;
   font-size: 1.1rem;
-  color: #222;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(255,153,0,0.08);
-}
-.modal-add-btn-admin:hover {
-  background: #ff9900;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(255,153,0,0.18);
 }
 
-.dashboard-btns-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  max-width: 370px;      /* Limita el ancho máximo */
-  width: 100%;
-  margin: 180px auto 80px auto; /* <-- Cambia aquí el 70px por 120px o el valor que desees */
-  padding: 0 16px;    /* Espacio a los lados en pantallas pequeñas */
-  box-sizing: border-box;
-}
-
-.dashboard-btn {
-  flex: 1 1 0;
-  min-width: 120px;
-  max-width: 220px;
+.dashboard-product-delete-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
   text-align: center;
-  margin: 0;
+  font-weight: 500;
+  border: 1px solid #ffeaa7;
 }

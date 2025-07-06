@@ -15,9 +15,7 @@ export const useMenu = () => {
             '/dashboard-product',
             '/dashboard-orders',
             '/dashboard-client',
-            '/dashboard-analysis',
-            '/dashboard-inventory',
-            '/dashboard-settings'
+            '/dashboard-inventory'
         ],
 
         pathToButtonName: {

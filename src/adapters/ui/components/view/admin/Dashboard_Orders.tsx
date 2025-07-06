@@ -1,154 +1,382 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Dashboard_Orders.css';
-import iconProducto from '../../../../../assets/icons/Producto.svg';
-
-type Pedido = {
-  id: number;
-  producto: string;
-  descripcion: string;
-  precio: string;
-  estado: 'completado' | 'en espera';
-  imagen: string;
-};
-
-const pedidosIniciales: Pedido[] = [
-  {
-    id: 1,
-    producto: 'Celular Samsung Galaxy S25 Ultra 5G',
-    descripcion: '12GB Bronce',
-    precio: '1,000.00',
-    estado: 'completado',
-    imagen: iconProducto,
-  },
-  {
-    id: 2,
-    producto: 'Celular Samsung Galaxy S25 Ultra 5G',
-    descripcion: '12GB Bronce',
-    precio: '1,000.00',
-    estado: 'en espera',
-    imagen: iconProducto,
-  },
-  {
-    id: 3,
-    producto: 'Celular Samsung Galaxy S25 Ultra 5G',
-    descripcion: '12GB Bronce',
-    precio: '1,000.00',
-    estado: 'completado',
-    imagen: iconProducto,
-  },
-];
+import useDashboardOrders from '../../../hook/useDashboardOrders';
 
 const Dashboard_Orders: React.FC = () => {
-  const [pedidos, setPedidos] = useState<Pedido[]>(pedidosIniciales);
-  const [showModal, setShowModal] = useState(false);
-  const [pedidoSeleccionado, setPedidoSeleccionado] = useState<Pedido | null>(null);
-  const [loading, setLoading] = useState<'completado' | 'en espera' | null>(null);
-  const [progress, setProgress] = useState(0);
-
-  const completados = pedidos.filter(p => p.estado === 'completado').length;
-  const enEspera = pedidos.filter(p => p.estado === 'en espera').length;
-
-  // Animación de carga (2 segundos)
-  const handleEstado = (estado: 'completado' | 'en espera') => {
-  setLoading(estado);
-  setProgress(0);
-  const interval = setInterval(() => {
-    setProgress(prev => {
-      if (prev >= 100) {
-        clearInterval(interval);
-        setPedidos(pedidos =>
-          pedidos.map(p =>
-            p.id === pedidoSeleccionado?.id ? { ...p, estado } : p
-          )
-        );
-        // NO reiniciar loading ni progress aquí
-        return 100;
-      }
-      return prev + 1;
-    });
-  }, 20);
-};
+  const {
+    showDetailModal,
+    pedidoDetalle,
+    cerrarModalDetalle,
+    handleDetailModalClick,
+    handleStatusChange,
+    handlePaymentStatusChange,
+    pedidosFiltrados,
+    showModal,
+    newStatus,
+    newPaymentStatus,
+    pedidosTotales,
+    pedidosCompletados,
+    pedidosEspera,
+    ventasHoy,
+    verDetalle,
+    cambiarEstado,
+    marcarEntregado,
+    confirmarPago,
+    procesarPedido,
+    guardarCambios,
+    cerrarModal,
+    handleModalClick,
+    filtroEstado,
+    setFiltroEstado,
+    filtroPago,
+    setFiltroPago,
+    filtroFecha,
+    setFiltroFecha
+  } = useDashboardOrders();
 
   return (
-    <div className="orders-bg">
-      <div className="orders-summary">
-        <div className="orders-summary-title">Pendientes</div>
-        <div className="orders-summary-item">Entregados: {completados}</div>
-        <div className="orders-summary-item">En espera: {enEspera}</div>
+    <div className='dashboard-orders-container'>
+      <div className="dashboard-orders-header">
+        <h1>📋 Gestión de Pedidos</h1>
+        <p>Administra todos los pedidos de tu tienda</p>
       </div>
-      <div className="orders-list">
-        {pedidos.map(pedido => (
-          <div
-            key={pedido.id}
-            className="orders-card"
-            onClick={() => {
-            setPedidoSeleccionado(pedido);
-            setShowModal(true);
-            setProgress(pedido.estado === 'completado' || pedido.estado === 'en espera' ? 100 : 0);
-            setLoading(null);
-            }}
-          >
-            <img src={pedido.imagen} alt="icono" className="orders-card-img" />
-            <div className="orders-card-info">
-              <div className="orders-card-precio">S/ {pedido.precio}</div>
-              <div className="orders-card-producto">{pedido.producto}</div>
-              <div className="orders-card-desc">{pedido.descripcion}</div>
-              <div className={`orders-card-estado ${pedido.estado === 'completado' ? 'completado' : 'en-espera'}`}>
-                {pedido.estado === 'completado' ? 'Completado' : 'En espera'}
+
+      <div className="dashboard-orders-main">
+        {/* Estadísticas */}
+        <div className="dashboard-orders-stats">
+          <div className="dashboard-orders-stat-card">
+            <div className="dashboard-orders-stat-number">{pedidosTotales}</div>
+            <div className="dashboard-orders-stat-label">Pedidos Totales</div>
+          </div>
+          <div className="dashboard-orders-stat-card">
+            <div className="dashboard-orders-stat-number">{pedidosCompletados}</div>
+            <div className="dashboard-orders-stat-label">Completados</div>
+          </div>
+          <div className="dashboard-orders-stat-card">
+            <div className="dashboard-orders-stat-number">{pedidosEspera}</div>
+            <div className="dashboard-orders-stat-label">En Espera</div>
+          </div>
+          <div className="dashboard-orders-stat-card">
+            <div className="dashboard-orders-stat-number">${ventasHoy.toFixed(2)}</div>
+            <div className="dashboard-orders-stat-label">Ventas Hoy</div>
+          </div>
+        </div>
+
+        {/* Filtros */}
+        <div className="dashboard-orders-filters">
+          <div className="dashboard-orders-filter-row">
+            <div className="dashboard-orders-filter-group">
+              <label className="dashboard-orders-filter-label">Estado del Pedido</label>
+              <select
+                aria-label='Filtro Pedido'
+                className="dashboard-orders-filter-select"
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              >
+                <option value="">Todos los estados</option>
+                <option value="completado">Completado</option>
+                <option value="espera">En Espera</option>
+                <option value="procesando">Procesando</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div className="dashboard-orders-filter-group">
+              <label className="dashboard-orders-filter-label">Método de Pago</label>
+              <select
+                aria-label='Filtro Pago'
+                className="dashboard-orders-filter-select"
+                value={filtroPago}
+                onChange={(e) => setFiltroPago(e.target.value)}
+              >
+                <option value="">Todos los métodos</option>
+                <option value="online">Pago Online</option>
+                <option value="efectivo">Efectivo</option>
+              </select>
+            </div>
+            <div className="dashboard-orders-filter-group">
+              <label className="dashboard-orders-filter-label">Fecha</label>
+              <select
+                aria-label='filtro fecha'
+                className="dashboard-orders-filter-select"
+                value={filtroFecha}
+                onChange={(e) => setFiltroFecha(e.target.value)}
+              >
+                <option value="">Todas las fechas</option>
+                <option value="hoy">Hoy</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de Pedidos */}
+        <div className="dashboard-orders-list">
+          {pedidosFiltrados.map(pedido => (
+            <div key={pedido.id} className="dashboard-orders-order-card">
+              <div className="dashboard-orders-order-header">
+                <div className="dashboard-orders-order-id">#{pedido.id}</div>
+                <div className="dashboard-orders-order-date">{pedido.fecha}</div>
+              </div>
+              <div className="dashboard-orders-order-body">
+                <div className="dashboard-orders-customer-info">
+                  <div className="dashboard-orders-customer-name">{pedido.cliente.nombre}</div>
+                  <div className="dashboard-orders-customer-contact">
+                    📞 {pedido.cliente.telefono} | 📧 {pedido.cliente.email}
+                  </div>
+                </div>
+
+                <div className="dashboard-orders-products-list">
+                  {pedido.productos.map(producto => (
+                    <div key={`${pedido.id}-${producto.id}`} className="dashboard-orders-product-item">
+                      <div>
+                        <div className="dashboard-orders-product-name">{producto.name}</div>
+                        <div className="dashboard-orders-product-quantity">Cantidad: {producto.quantity}</div>
+                      </div>
+                      <div className="dashboard-orders-product-price">${producto.price.toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="dashboard-orders-order-total">
+                  Total: ${pedido.total.toFixed(2)}
+                </div>
+
+                <div className="dashboard-orders-status-badges">
+                  <span className={`dashboard-orders-badge ${pedido.estado === 'completado' ? 'dashboard-orders-badge-completed' :
+                    pedido.estado === 'espera' ? 'dashboard-orders-badge-pending' :
+                      'dashboard-orders-badge-processing'
+                    }`}>
+                    {pedido.estado === 'completado' ? 'Completado' :
+                      pedido.estado === 'espera' ? 'En Espera' :
+                        'Procesando'}
+                  </span>
+                  <span className={`dashboard-orders-badge ${pedido.metodoPago === 'online' ? 'dashboard-orders-badge-online' : 'dashboard-orders-badge-cash'
+                    }`}>
+                    {pedido.metodoPago === 'online' ? 'Pago Online' : 'Efectivo'}
+                  </span>
+                </div>
+
+                <div className="dashboard-orders-actions">
+                  <button
+                    className="dashboard-orders-btn dashboard-orders-btn-primary"
+                    onClick={() => verDetalle(pedido.id)}
+                  >
+                    Ver Detalle
+                  </button>
+                  <button
+                    className="dashboard-orders-btn dashboard-orders-btn-secondary"
+                    onClick={() => cambiarEstado(pedido.id)}
+                  >
+                    Cambiar Estado
+                  </button>
+                  {pedido.estado === 'completado' ? (
+                    <button
+                      className="dashboard-orders-btn dashboard-orders-btn-success"
+                      onClick={() => marcarEntregado(pedido.id)}
+                    >
+                      Marcar Entregado
+                    </button>
+                  ) : pedido.pago === 'pendiente' ? (
+                    <button
+                      className="dashboard-orders-btn dashboard-orders-btn-success"
+                      onClick={() => confirmarPago(pedido.id)}
+                    >
+                      Confirmar Pago
+                    </button>
+                  ) : (
+                    <button
+                      className="dashboard-orders-btn dashboard-orders-btn-success"
+                      onClick={() => procesarPedido(pedido.id)}
+                    >
+                      Procesar Pedido
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Modal para cambiar estado */}
+      {showModal && (
+        <div
+          className="dashboard-orders-modal"
+          onClick={handleModalClick}
+        >
+          <div className="dashboard-orders-modal-content">
+            <div className="dashboard-orders-modal-header">
+              <h3 className="dashboard-orders-modal-title">Cambiar Estado del Pedido</h3>
+              <span
+                className="dashboard-orders-modal-close"
+                onClick={cerrarModal}
+              >
+                &times;
+              </span>
+            </div>
+            <div className="dashboard-orders-modal-body">
+              <div className="dashboard-orders-form-group">
+                <label className="dashboard-orders-form-label">Estado del Pedido:</label>
+                <select
+                  aria-label='Estado Pedido'
+                  className="dashboard-orders-form-select"
+                  value={newStatus}
+                  onChange={handleStatusChange}
+                >
+                  <option value="espera">En Espera</option>
+                  <option value="procesando">Procesando</option>
+                  <option value="completado">Completado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div className="dashboard-orders-form-group">
+                <label className="dashboard-orders-form-label">Estado del Pago:</label>
+                <select
+                  aria-label='Estado Pago'
+                  className="dashboard-orders-form-select"
+                  value={newPaymentStatus}
+                  onChange={handlePaymentStatusChange}
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="pagado">Pagado</option>
+                  <option value="reembolsado">Reembolsado</option>
+                </select>
+              </div>
+              <div className="dashboard-orders-modal-actions">
+                <button
+                  className="dashboard-orders-btn dashboard-orders-btn-primary"
+                  onClick={guardarCambios}
+                >
+                  Guardar Cambios
+                </button>
+                <button
+                  className="dashboard-orders-btn dashboard-orders-btn-secondary"
+                  onClick={cerrarModal}
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {/* Modal especial */}
-      {showModal && pedidoSeleccionado && (
-        <div className="orders-modal-overlay">
-          <div className="orders-modal">
-            <button className="orders-modal-close" onClick={() => setShowModal(false)}>
-              &times;
-            </button>
-            <div className="orders-modal-btns">
-              <div className="orders-modal-btn-box">
-                <span className="orders-modal-btn-text">completado</span>
-                <div
-  className="orders-modal-btn-progress completado"
-  style={{
-    width:
-      (loading === 'completado')
-        ? `${progress}%`
-        : pedidoSeleccionado.estado === 'completado'
-        ? '100%'
-        : '0%',
-  }}
-/>
-                <button
-                  className="orders-modal-btn"
-                  disabled={!!loading}
-                  onClick={() => handleEstado('completado')}
-                />
+      {/* Modal para ver detalle */}
+      {showDetailModal && pedidoDetalle && (
+        <div
+          className="dashboard-orders-modal"
+          onClick={handleDetailModalClick}
+        >
+          <div className="dashboard-orders-modal-content dashboard-orders-modal-detail">
+            <div className="dashboard-orders-modal-header">
+              <h3 className="dashboard-orders-modal-title">
+                Detalle: {pedidoDetalle.id}
+              </h3>
+              <span
+                className="dashboard-orders-modal-close"
+                onClick={cerrarModalDetalle}
+              >
+                &times;
+              </span>
+            </div>
+
+            <div className="dashboard-orders-modal-body">
+              {/* Información del cliente */}
+              <div className="dashboard-orders-detail-section">
+                <h4 className="dashboard-orders-detail-title">👤 Información del Cliente</h4>
+                <div className="dashboard-orders-detail-info">
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Nombre:</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.nombre}</span>
+                  </div>
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Teléfono:</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.telefono}</span>
+                  </div>
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Email:</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.email}</span>
+                  </div>
+                </div>
               </div>
-              <div className="orders-modal-btn-box">
-                <span className="orders-modal-btn-text">En espera</span>
-                <div
-  className="orders-modal-btn-progress en-espera"
-  style={{
-    width:
-      (loading === 'en espera')
-        ? `${progress}%`
-        : pedidoSeleccionado.estado === 'en espera'
-        ? '100%'
-        : '0%',
-    right: 0,
-    left: 'auto',
-  }}
-/>
-                <button
-                  className="orders-modal-btn"
-                  disabled={!!loading}
-                  onClick={() => handleEstado('en espera')}
-                />
+
+              {/* Información del pedido */}
+              <div className="dashboard-orders-detail-section">
+                <h4 className="dashboard-orders-detail-title">📦 Información del Pedido</h4>
+                <div className="dashboard-orders-detail-info">
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Fecha:</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.fecha}</span>
+                  </div>
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Estado:</span>
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.estado === 'completado' ? 'dashboard-orders-badge-completed' :
+                      pedidoDetalle.estado === 'espera' ? 'dashboard-orders-badge-pending' :
+                        'dashboard-orders-badge-processing'
+                      }`}>
+                      {pedidoDetalle.estado === 'completado' ? 'Completado' :
+                        pedidoDetalle.estado === 'espera' ? 'En Espera' :
+                          'Procesando'}
+                    </span>
+                  </div>
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Método de Pago:</span>
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.metodoPago === 'online' ? 'dashboard-orders-badge-online' : 'dashboard-orders-badge-cash'
+                      }`}>
+                      {pedidoDetalle.metodoPago === 'online' ? 'Pago Online' : 'Efectivo'}
+                    </span>
+                  </div>
+                  <div className="dashboard-orders-detail-row">
+                    <span className="dashboard-orders-detail-label">Estado del Pago:</span>
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.pago === 'pagado' ? 'dashboard-orders-badge-completed' :
+                      pedidoDetalle.pago === 'pendiente' ? 'dashboard-orders-badge-pending' :
+                        'dashboard-orders-badge-processing'
+                      }`}>
+                      {pedidoDetalle.pago === 'pagado' ? 'Pagado' :
+                        pedidoDetalle.pago === 'pendiente' ? 'Pendiente' :
+                          'Reembolsado'}
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              {/* Productos */}
+              <div className="dashboard-orders-detail-section">
+                <h4 className="dashboard-orders-detail-title">🛍️ Productos</h4>
+                <div className="dashboard-orders-detail-products">
+                  {pedidoDetalle.productos.map((producto, index) => (
+                    <div key={`${pedidoDetalle.id}-${producto.id}-${index}`} className="dashboard-orders-detail-product">
+                      <div className="dashboard-orders-detail-product-info">
+                        <div className="dashboard-orders-detail-product-name">{producto.name}</div>
+                        <div className="dashboard-orders-detail-product-quantity">
+                          Cantidad: {producto.quantity}
+                        </div>
+                      </div>
+                      <div className="dashboard-orders-detail-product-price">
+                        ${producto.price.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="dashboard-orders-detail-section">
+                <div className="dashboard-orders-detail-total">
+                  <span className="dashboard-orders-detail-total-label">Total del Pedido:</span>
+                  <span className="dashboard-orders-detail-total-value">${pedidoDetalle.total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-orders-modal-actions">
+              <button
+                className="dashboard-orders-btn dashboard-orders-btn-primary"
+                onClick={cerrarModalDetalle}
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>

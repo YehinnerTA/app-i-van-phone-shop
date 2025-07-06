@@ -19,7 +19,6 @@ import Dashboard from './adapters/ui/pages/admin/Dashboard';
 import DashboardProduct from './adapters/ui/pages/admin/DashboardProduct';
 import DashboardOrders from './adapters/ui/pages/admin/DashboardOrders';
 import DashboardClient from './adapters/ui/pages/admin/DashboardClient';
-import DashboardAnalysis from './adapters/ui/pages/admin/DashboardAnalysis';
 import DashboardInventory from './adapters/ui/pages/admin/DashboardInventory';
 
 import '@ionic/react/css/core.css';
@@ -55,7 +54,6 @@ const App: React.FC = () => (
         <Route path="/dashboard-product" component={DashboardProduct} />
         <Route path="/dashboard-orders" component={DashboardOrders} />
         <Route path="/dashboard-client" component={DashboardClient} />
-        <Route path="/dashboard-analysis" component={DashboardAnalysis} />
         <Route path="/dashboard-inventory" component={DashboardInventory} />
 
         <Redirect to="/" />
