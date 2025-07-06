@@ -1,6 +1,6 @@
 import React from "react";
 import './Payment_LandingPage.css';
-import { usePayment } from "../../../../hook/usePayment";
+import { usePayment } from "../../../../hook/users/usePayment";
 
 const Payment_LandingPage: React.FC = () => {
     const {

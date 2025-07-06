@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 import { getAuth, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
-import { getUserProfile, updateUserProfile } from "../../../domain/services/firebaseUserService";
-import { User } from "../../../domain/entities/User";
+import { getUserProfile, updateUserProfile } from "../../../../domain/services/firebaseUserService";
+import { User } from "../../../../domain/entities/User";
 
 interface LocationState {
     from?: string;

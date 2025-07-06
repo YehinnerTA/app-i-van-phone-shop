@@ -1,7 +1,7 @@
 import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { ellipsisVerticalOutline, personOutline, powerOutline } from 'ionicons/icons';
-import { useHeader } from '../../hook/useHeader';
+import { useHeader } from '../../hook/users/useHeader';
 import './Header.css';
 
 const Header: React.FC = () => {

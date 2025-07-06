@@ -2,7 +2,7 @@ import React from "react";
 import './Home.css';
 import { useModal } from '../../../../hook/useModal';
 import Modal from '../../../modal/Modal';
-import { useHome } from "../../../../hook/useHome";
+import { useHome } from "../../../../hook/users/useHome";
 
 const Home_LandingPage: React.FC = () => {
     const {

@@ -1,6 +1,6 @@
 import React from "react";
 import './FeaturedProduct_LandingPage.css';
-import { useCatalogProduct } from '../../../../hook/useCatalogProduct';
+import { useCatalogProduct } from '../../../../hook/users/useCatalogProduct';
 import { useModal } from '../../../../hook/useModal';
 import Modal from '../../../modal/Modal';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import useDashboardProduct from '../../../../hook/useDashboardProduct';
+import useDashboardProduct from '../../../../hook/admin/useDashboardProduct';
 import './Dashboard_Product.css';
 
 const Dashboard_Product: React.FC = () => {

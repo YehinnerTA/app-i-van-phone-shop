@@ -1,6 +1,6 @@
 import React from "react";
 import './Profile_LandingPage.css';
-import { useProfile, formatDateOnly } from "../../../../hook/useProfile";
+import { useProfile, formatDateOnly } from "../../../../hook/users/useProfile";
 
 const Profile_LandingPage: React.FC = () => {
     const {
