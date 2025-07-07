@@ -5,4 +5,6 @@ export interface ProductDto {
     stock: number;
     description: string;
     img?: string;
+    imgFile?: File;
+    dateAdded?: Date;
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { IonIcon } from '@ionic/react';
 import { cartOutline, cashOutline, peopleOutline, phonePortraitOutline } from 'ionicons/icons';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import './dashboard.css'
+import './Dashboard.css'
 
 const Dashboard_Home: React.FC = () => {
     const salesData = [

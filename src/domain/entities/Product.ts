@@ -5,6 +5,6 @@ export interface Product {
     price: number;
     stock: number;
     description: string;
-    img?: string;
+    img: string | File;
     dateAdded: Date;
 }

@@ -219,7 +219,12 @@ const Dashboard_Product: React.FC = () => {
               </div>
               <div className="dashboard-product-form-group">
                 <label>Imagen del Producto</label>
-                <input type="file" accept="image/*" />
+                <input
+                  type="file"
+                  name="img"
+                  accept="image/*"
+                  onChange={handleInputChange}
+                />
               </div>
               <div className="dashboard-product-modal-actions">
                 <button
@@ -244,7 +249,7 @@ const Dashboard_Product: React.FC = () => {
       {/* Modal Detalles del Producto */}
       {modalState.details && selectedProduct && (
         <div className="dashboard-product-modal active" onClick={handleModalBackdropClick}>
-          <div className="dashboard-product-modal-content">
+          <div className="dashboard-product-modal-content" onClick={(e) => e.stopPropagation()}>
             <span
               className="dashboard-product-modal-close"
               onClick={closeDetailsModal}
@@ -295,7 +300,7 @@ const Dashboard_Product: React.FC = () => {
               <label>Fecha de Agregado</label>
               <input
                 type="text"
-                value={selectedProduct.dateAdded}
+                value={selectedProduct.dateAdded.toLocaleDateString()}
                 readOnly
               />
             </div>

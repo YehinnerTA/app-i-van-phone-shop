@@ -1,62 +1,99 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Product } from '../../../../domain/entities/Product';
+import { ProductDto } from '../../../../application/dtos/ProductDto';
 import { AddProductUseCase, GetProductsUseCase, DeleteProductUseCase, UpdateProductUseCase } from '../../../../application/useCases/ProductUseCase';
+import { FirebaseProductRepository } from '../../../../domain/services/firebaseProductRepository';
 
 const useDashboardProduct = () => {
+    const productRepository = useMemo(() => new FirebaseProductRepository(), []);
+    const getProductsUseCase = useMemo(() => new GetProductsUseCase(productRepository), [productRepository]);
+    const addProductUseCase = useMemo(() => new AddProductUseCase(productRepository), [productRepository]);
+    const updateProductUseCase = useMemo(() => new UpdateProductUseCase(productRepository), [productRepository]);
+    const deleteProductUseCase = useMemo(() => new DeleteProductUseCase(productRepository), [productRepository]);
+
     const [modalState, setModalState] = useState({ add: false, details: false, delete: false });
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-
-    // Estados para el formulario de agregar producto
-    const [newProduct, setNewProduct] = useState<Omit<Product, 'id' | 'dateAdded'>>({
+    const [img, setImg] = useState<File | null>(null);
+    const [newProduct, setNewProduct] = useState<Omit<ProductDto, 'img'>>({
         name: '',
         category: '',
         price: 0,
         stock: 0,
-        description: '',
-        img: ''
+        description: ''
     });
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true);
-            const allProducts = await GetProductsUseCase();
-            setProducts(allProducts);
-            setLoading(false);
-        };
-        fetchProducts();
-    }, []);
+    const fetchProducts = useCallback(async () => {
+        setLoading(true);
+        const dtos = await getProductsUseCase.execute();
 
-    // Agregar nuevo producto
+        const productsWithId: Product[] = dtos.map(dto => ({
+            id: crypto.randomUUID(),
+            name: dto.name,
+            category: dto.category,
+            price: dto.price,
+            stock: dto.stock,
+            description: dto.description,
+            img: dto.img ?? '',
+            dateAdded: dto.dateAdded ?? new Date()
+        }));
+        setProducts(productsWithId);
+        setLoading(false);
+    }, [getProductsUseCase]);
+
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
+
     const handleAddProduct = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!newProduct.name || !newProduct.category || newProduct.price <= 0 || newProduct.stock < 0) {
+        console.log('🔧 Enviando formulario...');
+        if (
+            !newProduct.name.trim() ||
+            !newProduct.category.trim() ||
+            isNaN(newProduct.price) || newProduct.price < 0 ||
+            isNaN(newProduct.stock) || newProduct.stock < 0 ||
+            !img
+        ) {
+            console.log('🚫 Validación fallida');
             alert('Por favor completa todos los campos correctamente');
             return;
         }
 
+        if (!(img instanceof File)) {
+            alert('Debes seleccionar una imagen válida');
+            return;
+        }
+
         try {
-            await AddProductUseCase(newProduct);
-            const updatedProducts = await GetProductsUseCase();
-            setProducts(updatedProducts);
+            await addProductUseCase.execute({ ...newProduct, imgFile: img });
+            await fetchProducts();
             closeAddModal();
             alert('Producto agregado exitosamente');
         } catch (err) {
-            console.error(err);
+            console.error('Error al agregar producto:', err);
             alert('Error al agregar producto');
         }
+
     };
 
-    // Editar producto
     const handleUpdateProduct = async (updatedData: Product) => {
         try {
-            await UpdateProductUseCase(updatedData);
-            const updatedProducts = await GetProductsUseCase();
-            setProducts(updatedProducts);
+            const dto: ProductDto = {
+                name: updatedData.name,
+                category: updatedData.category,
+                price: updatedData.price,
+                stock: updatedData.stock,
+                description: updatedData.description,
+                ...(updatedData.img instanceof File
+                    ? { imgFile: updatedData.img }
+                    : { img: updatedData.img })
+            };
+            await updateProductUseCase.execute(updatedData.id, dto);
+            await fetchProducts();
             closeDetailsModal();
             alert('Producto actualizado exitosamente');
         } catch (err) {
@@ -65,13 +102,11 @@ const useDashboardProduct = () => {
         }
     };
 
-    // Eliminar producto
     const handleDeleteProduct = async () => {
         if (selectedProduct) {
             try {
-                await DeleteProductUseCase(selectedProduct.id);
-                const updatedProducts = await GetProductsUseCase();
-                setProducts(updatedProducts);
+                await deleteProductUseCase.execute(selectedProduct.id);
+                await fetchProducts();
                 closeDeleteModal();
                 alert('Producto eliminado exitosamente');
             } catch (err) {
@@ -81,46 +116,31 @@ const useDashboardProduct = () => {
         }
     };
 
-    // Filtrar productos por búsqueda y categoría
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = filterCategory ? product.category === filterCategory : true;
         return matchesSearch && matchesCategory;
     });
 
-    // Estadísticas
     const totalProducts = products.length;
     const lowStockProducts = products.filter(p => p.stock < 10).length;
     const phonesCount = products.filter(p => p.category === 'celulares').length;
     const accessoriesCount = products.filter(p => p.category === 'accesorios').length;
 
-    // Funciones para abrir modales
-    const openAddModal = () => setModalState({
-        add: true,
-        details: false,
-        delete: false
-    });
+    const openAddModal = () => setModalState({ add: true, details: false, delete: false });
     const openDetailsModal = (product: Product) => {
         setSelectedProduct(product);
         setModalState({ add: false, details: true, delete: false });
     };
-
     const openDeleteModal = (product: Product) => {
         setSelectedProduct(product);
         setModalState({ add: false, details: false, delete: true });
     };
 
-    // Funciones para cerrar modales
     const closeAddModal = () => {
         setModalState({ ...modalState, add: false });
-        setNewProduct({
-            name: '',
-            category: '',
-            price: 0,
-            stock: 0,
-            description: '',
-            img: ''
-        });
+        setNewProduct({ name: '', category: '', price: 0, stock: 0, description: '' });
+        setImg(null);
     };
 
     const closeDetailsModal = () => {
@@ -133,7 +153,6 @@ const useDashboardProduct = () => {
         setSelectedProduct(null);
     };
 
-    // Cerrar modal haciendo click fuera
     const handleModalBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             if (modalState.add) closeAddModal();
@@ -142,9 +161,17 @@ const useDashboardProduct = () => {
         }
     };
 
-    // Manejar cambios en el formulario
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
+        if (name === 'img' && e.target instanceof HTMLInputElement && e.target.files) {
+            const file = e.target.files[0];
+            if (file) {
+                setImg(file);
+            }
+            return;
+        }
+
         setNewProduct(prev => ({
             ...prev,
             [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
@@ -176,7 +203,9 @@ const useDashboardProduct = () => {
         totalProducts,
         lowStockProducts,
         phonesCount,
-        accessoriesCount
+        accessoriesCount,
+        img,
+        setImg
     };
 };
 

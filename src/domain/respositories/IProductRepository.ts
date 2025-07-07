@@ -1,9 +1,8 @@
-import { Product } from '../entities/Product';
+import { ProductDto } from "../../application/dtos/ProductDto";
 
 export interface IProductRepository {
-    addProduct(product: Product): Promise<void>;
-    getAllProducts(): Promise<Product[]>;
+    addProduct(dto: ProductDto): Promise<void>;
+    getAllProducts(): Promise<ProductDto[]>;
     deleteProduct(id: string): Promise<void>;
-    updateProduct(product: Product): Promise<void>;
-    // Otros métodos futuros: updateProduct, getProductById, etc.
+    updateProduct(id: string, dto: ProductDto): Promise<void>;
 }
