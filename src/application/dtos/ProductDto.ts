@@ -4,7 +4,10 @@ export interface ProductDto {
     price: number;
     stock: number;
     description: string;
-    img?: string;
-    imgFile?: File;
-    dateAdded?: Date;
+}
+
+export interface ProductWithId extends ProductDto {
+    id: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

@@ -1,19 +1,19 @@
 import { ProductDto } from '../dtos/ProductDto';
-import { IProductRepository } from '../../domain/respositories/IProductRepository';
+import { IProductRepository, ProductWithId } from '../../domain/respositories/IProductRepository';
 
 export class AddProductUseCase {
     constructor(private readonly productRepo: IProductRepository) { }
 
-    async execute(dto: ProductDto): Promise<void> {
-        await this.productRepo.addProduct(dto);
+    async execute(product: ProductDto): Promise<string> {
+        return await this.productRepo.createProduct(product);
     }
 }
 
 export class GetProductsUseCase {
     constructor(private readonly productRepo: IProductRepository) { }
 
-    async execute(): Promise<ProductDto[]> {
-        return await this.productRepo.getAllProducts();
+    async execute(): Promise<ProductWithId[]> {
+        return await this.productRepo.getProducts();
     }
 }
 
@@ -28,7 +28,7 @@ export class DeleteProductUseCase {
 export class UpdateProductUseCase {
     constructor(private readonly productRepo: IProductRepository) { }
 
-    async execute(productId: string, dto: ProductDto): Promise<void> {
-        await this.productRepo.updateProduct(productId, dto);
+    async execute(productId: string, product: ProductDto): Promise<void> {
+        await this.productRepo.updateProduct(productId, product);
     }
 }

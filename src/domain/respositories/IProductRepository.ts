@@ -1,8 +1,10 @@
-import { ProductDto } from "../../application/dtos/ProductDto";
+import { ProductDto } from '../../application/dtos/ProductDto';
+
+export type ProductWithId = ProductDto & { id: string };
 
 export interface IProductRepository {
-    addProduct(dto: ProductDto): Promise<void>;
-    getAllProducts(): Promise<ProductDto[]>;
-    deleteProduct(id: string): Promise<void>;
-    updateProduct(id: string, dto: ProductDto): Promise<void>;
+    createProduct(product: ProductDto): Promise<string>;
+    getProducts(): Promise<ProductWithId[]>;
+    updateProduct(productId: string, product: ProductDto): Promise<void>;
+    deleteProduct(productId: string): Promise<void>;
 }

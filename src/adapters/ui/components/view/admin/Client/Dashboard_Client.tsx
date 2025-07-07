@@ -12,8 +12,6 @@ const Dashboard_Client: React.FC = () => {
     setShowEditModal,
     selectedClient,
     setSelectedClient,
-    previewImg,
-    handleImageChange,
     nombre,
     setNombre,
     email,
@@ -29,6 +27,7 @@ const Dashboard_Client: React.FC = () => {
     handleEdit,
     handleSaveEdit,
     handleDelete,
+    handleAddClient,
     filteredClient,
     searchTerm,
     setSearchTerm,
@@ -67,7 +66,7 @@ const Dashboard_Client: React.FC = () => {
         <div className="list-product-container">
           {filteredClient.map((cliente) => (
             <div className="card-list-product" key={cliente.id}>
-              <img src={cliente.imagen} alt="icono" className="dashboard-card-img" />
+              <span className="dashboard-card-img">{cliente.imagen}</span>
               <div className="dashboard-card-info">
                 <span className="dashboard-card-title">{cliente.nombre}</span>
                 <div className="dashboard-card-price">{cliente.estado}</div>
@@ -331,89 +330,110 @@ const Dashboard_Client: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay-admin">
-          <div className="modal-content-admin">
-            <button className="modal-close-admin" onClick={() => setShowModal(false)}>
-              &times;
-            </button>
-            <div className="modal-img-upload-admin">
-              <div className="modal-img-box-admin">
-                {previewImg ? (
-                  <img
-                    src={previewImg}
-                    alt="preview"
-                    className='img-client'
-                  />
-                ) : (
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="5" width="18" height="14" rx="2" />
-                    <circle cx="8.5" cy="12.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                )}
+        <div className="client-add-modal-overlay">
+          <div className="client-add-modal-content">
+            <div className="client-add-modal-header">
+              <div className="client-add-modal-title">
+                <span className="client-add-icon">➕</span>
+                <h2>Añadir Nuevo Cliente</h2>
               </div>
-              <label className="modal-upload-btn-admin" >
-                Subir imagen
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="modal-upload-input-admin"
-                  onChange={handleImageChange}
-                />
-              </label>
+              <button
+                onClick={() => setShowModal(false)}
+                className="client-add-close-btn"
+              >
+                ×
+              </button>
             </div>
-            <div className="modal-form-admin">
-              <label>
-                Nombre:
-                <input
-                  type="text"
-                  className="modal-input-admin"
-                  value={nombre}
-                  onChange={e => setNombre(e.target.value)}
-                />
-              </label>
-              <label>
-                Email:
-                <input
-                  type="text"
-                  className="modal-input-admin"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
-              </label>
-              <label>
-                Celular:
-                <input
-                  type="text"
-                  className="modal-input-admin"
-                  value={celular}
-                  onChange={e => setCelular(e.target.value)}
-                />
-              </label>
-              <label>
-                Dni:
-                <input
-                  type="text"
-                  className="modal-input-admin"
-                  value={dni}
-                  onChange={e => setDni(e.target.value)}
-                />
-              </label>
-              <label>
-                Contraseña:
-                <textarea
-                  className="modal-textarea-admin"
-                  value={contrasena}
-                  onChange={e => setContrasena(e.target.value)}
-                />
-              </label>
-              <div className='modal-btn-group-add'>
-                <button className="modal-add-btn-admin">Agregar</button>
+
+            <div className="client-add-modal-body">
+              <div className="client-add-form-grid">
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">Nombre completo</label>
+                  <input
+                    type="text"
+                    className="client-add-form-input"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    placeholder="Ej: Juan Pérez"
+                  />
+                </div>
+
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">Estado/Rol</label>
+                  <select
+                    aria-label='estado'
+                    className="client-add-form-input"
+                    value={selectedClient?.estado || 'vendedor'}
+                    onChange={(e) => {
+                      if (selectedClient) {
+                        handleInputChange('estado', e.target.value);
+                      }
+                    }}
+                  >
+                    <option value="cajero">Cajero</option>
+                    <option value="vendedor">Vendedor</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">Email</label>
+                  <input
+                    type="email"
+                    className="client-add-form-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Ej: cliente@example.com"
+                  />
+                </div>
+
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">Teléfono/Celular</label>
+                  <input
+                    type="text"
+                    className="client-add-form-input"
+                    value={celular}
+                    onChange={(e) => setCelular(e.target.value)}
+                    placeholder="Ej: +51 987654321"
+                  />
+                </div>
+
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">DNI</label>
+                  <input
+                    type="text"
+                    className="client-add-form-input"
+                    value={dni}
+                    onChange={(e) => setDni(e.target.value)}
+                    placeholder="Ej: 87654321"
+                  />
+                </div>
+
+                <div className="client-add-form-group">
+                  <label className="client-add-form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    className="client-add-form-input"
+                    value={contrasena}
+                    onChange={(e) => setContrasena(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <div className="client-add-actions">
                 <button
-                  type="button"
-                  className="modal-add-btn-admin modal-clear-btn-admin"
+                  className="client-add-submit-btn"
+                  onClick={handleAddClient}
+                >
+                  <span className="client-add-submit-icon">✓</span>
+                  Añadir Cliente
+                </button>
+                <button
+                  className="client-add-clear-btn"
                   onClick={handleLimpiar}
                 >
+                  <span className="client-add-clear-icon">🗑️</span>
                   Limpiar
                 </button>
               </div>

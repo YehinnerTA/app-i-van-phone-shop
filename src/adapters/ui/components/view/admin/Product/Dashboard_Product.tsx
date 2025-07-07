@@ -217,7 +217,7 @@ const Dashboard_Product: React.FC = () => {
                   required
                 />
               </div>
-              <div className="dashboard-product-form-group">
+              {/* <div className="dashboard-product-form-group">
                 <label>Imagen del Producto</label>
                 <input
                   type="file"
@@ -225,7 +225,7 @@ const Dashboard_Product: React.FC = () => {
                   accept="image/*"
                   onChange={handleInputChange}
                 />
-              </div>
+              </div> */}
               <div className="dashboard-product-modal-actions">
                 <button
                   type="button"
@@ -300,7 +300,7 @@ const Dashboard_Product: React.FC = () => {
               <label>Fecha de Agregado</label>
               <input
                 type="text"
-                value={selectedProduct.dateAdded.toLocaleDateString()}
+                value={selectedProduct.createdAt?.toLocaleDateString() || 'Fecha no disponible'}
                 readOnly
               />
             </div>

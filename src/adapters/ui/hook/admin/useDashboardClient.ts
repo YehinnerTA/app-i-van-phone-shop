@@ -16,7 +16,6 @@ export const useDashboardClient = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [previewImg, setPreviewImg] = useState<string | null>(null);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [celular, setCelular] = useState('');
@@ -24,26 +23,14 @@ export const useDashboardClient = () => {
     const [contrasena, setContrasena] = useState('');
     const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
     const [clientes, setClientes] = useState<Cliente[]>([
-        { id: 1, nombre: 'Yehinner Torres', imagen: 'src/assets/icons/Producto.svg', estado: 'cajero', Registor: '15/12/2025' },
-        { id: 2, nombre: 'Nicolas Astorga', imagen: 'src/assets/icons/Producto.svg', estado: 'vendedor', Registor: '15/12/2029' },
-        { id: 3, nombre: 'Angel Bonifacio', imagen: 'src/assets/icons/Producto.svg', estado: 'vendedor', Registor: '15/12/2029' },
-        { id: 4, nombre: 'Ariana Ypanaque', imagen: 'src/assets/icons/Producto.svg', estado: 'cajero', Registor: '15/12/2029' },
-        { id: 5, nombre: 'Eros Sanchez', imagen: 'src/assets/icons/Producto.svg', estado: 'vendedor', Registor: '15/12/2029' },
+        { id: 1, nombre: 'Yehinner Torres', imagen: '👤', estado: 'cajero', Registor: '15/12/2025' },
+        { id: 2, nombre: 'Nicolas Astorga', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
+        { id: 3, nombre: 'Angel Bonifacio', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
+        { id: 4, nombre: 'Ariana Ypanaque', imagen: '👤', estado: 'cajero', Registor: '15/12/2029' },
+        { id: 5, nombre: 'Eros Sanchez', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
     ]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                setPreviewImg(ev.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const handleLimpiar = () => {
-        setPreviewImg(null);
         setNombre('');
         setEmail('');
         setCelular('');
@@ -85,6 +72,23 @@ export const useDashboardClient = () => {
         }
     };
 
+    const handleAddClient = () => {
+        const newClient: Cliente = {
+            id: Math.max(...clientes.map(c => c.id)) + 1,
+            nombre,
+            imagen: '👤',
+            estado: selectedClient?.estado || 'vendedor',
+            Registor: new Date().toLocaleDateString(),
+            email: email || undefined,
+            celular: celular || undefined,
+            dni: dni || undefined
+        };
+
+        setClientes(prev => [...prev, newClient]);
+        handleLimpiar();
+        setShowModal(false);
+    };
+
     const filteredClient = clientes.filter(cliente =>
         cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -98,8 +102,6 @@ export const useDashboardClient = () => {
         setShowEditModal,
         selectedClient,
         setSelectedClient,
-        previewImg,
-        handleImageChange,
         nombre,
         setNombre,
         email,
@@ -115,6 +117,7 @@ export const useDashboardClient = () => {
         handleEdit,
         handleSaveEdit,
         handleDelete,
+        handleAddClient,
         filteredClient,
         searchTerm,
         setSearchTerm,
