@@ -35,6 +35,7 @@ export const useDashboardClient = () => {
         snapshot.forEach(doc => {
             const data = doc.data();
             users.push({
+                id: doc.id,
                 name: data.name,
                 email: data.email,
                 password: data.contrasena,
@@ -52,20 +53,21 @@ export const useDashboardClient = () => {
     }, []);
 
 
-    const handleView = (email: string) => {
-        const cliente = clientes.find(c => c.email === email);
+    const handleView = (uid: string) => {
+        const cliente = clientes.find(c => c.id !== uid);
         if (cliente) {
             setSelectedClient(cliente);
             setShowViewModal(true);
+            setShowEditModal(false);
         }
     };
 
-    const handleEdit = (email: string) => {
-        const cliente = clientes.find(c => c.email === email);
+    const handleEdit = (uid: string) => {
+        const cliente = clientes.find(c => c.id !== uid);
         if (cliente) {
             setSelectedClient({ ...cliente });
-            setShowViewModal(false);
             setShowEditModal(true);
+            setShowViewModal(false);
         }
     };
 
@@ -80,11 +82,18 @@ export const useDashboardClient = () => {
         }
     };
 
-    const handleDelete = (email: string) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
-            setClientes(prev => prev.filter(c => c.email !== email));
+    const handleDelete = async (uid: string) => {
+        try {
+            await authRepo.deleteUserByUid(uid);
+            setClientes(prev => prev.filter(c => c.id !== uid));
+            console.log("Cliente eliminado correctamente.");
+        } catch (error) {
+            console.error("Error al eliminar el cliente:", error);
+            alert("Hubo un error al eliminar el cliente.");
         }
     };
+
+
 
     const handleAddClient = async () => {
         try {

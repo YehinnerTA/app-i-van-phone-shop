@@ -57,7 +57,7 @@ const Dashboard_Client: React.FC = () => {
 
         <div className="list-product-container">
           {filteredClient.map((cliente) => (
-            <div className="card-list-product" key={cliente.dni}>
+            <div className="card-list-product" key={cliente.id}>
               <span className="dashboard-card-img">👤</span>
               <div className="dashboard-card-info">
                 <span className="dashboard-card-title">{cliente.name}</span>
@@ -67,21 +67,27 @@ const Dashboard_Client: React.FC = () => {
               <div className="dashboard-card-actions">
                 <button
                   className="dashboard-action-btn dashboard-btn-view"
-                  onClick={() => handleView(cliente.dni!)}
+                  onClick={() => {
+                    setShowViewModal(false);
+                    handleView(cliente.id!);
+                  }}
                   title="Ver"
                 >
                   👁️
                 </button>
                 <button
                   className="dashboard-action-btn dashboard-btn-edit"
-                  onClick={() => handleEdit(cliente.dni!)}
+                  onClick={() => {
+                    setShowEditModal(true);
+                    handleEdit(cliente.id!);
+                  }}
                   title="Editar"
                 >
                   ✏️
                 </button>
                 <button
                   className="dashboard-action-btn dashboard-btn-delete"
-                  onClick={() => handleDelete(cliente.dni!)}
+                  onClick={() => handleDelete(cliente.id!)}
                   title="Eliminar"
                 >
                   🗑️
@@ -91,69 +97,6 @@ const Dashboard_Client: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Modal Edit */}
-      {showViewModal && selectedClient && (
-        <div className="modal-overlay">
-          <div className="modal-content-view">
-            <div className="modal-header-view">
-              <div className="modal-header-title">
-                <h2>Información del Cliente</h2>
-              </div>
-              <button onClick={() => setShowViewModal(false)} className="modal-close-btn">
-                ×
-              </button>
-            </div>
-
-            <div className="modal-body-view">
-              <div className="client-avatar-view">
-                <div className="avatar-circle-view">
-                  <span className="avatar-icon-view">👤</span>
-                </div>
-                <h3>{selectedClient.name}</h3>
-                <p className="client-role">{selectedClient.role}</p>
-                <span className={`client-status ${selectedClient.role.toLowerCase()}`}>
-                  {selectedClient.role}
-                </span>
-              </div>
-
-              <div className="client-info-grid-view">
-                <div className="info-item-view">
-                  <span className="info-icon-view">✉️</span>
-                  <div>
-                    <p className="info-label-view">Email</p>
-                    <p className="info-value-view">{selectedClient.email || 'No especificado'}</p>
-                  </div>
-                </div>
-
-                <div className="info-item-view">
-                  <span className="info-icon-view">📱</span>
-                  <div>
-                    <p className="info-label-view">Teléfono</p>
-                    <p className="info-value-view">{selectedClient.phone || 'No especificado'}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="modal-actions-view">
-                <button
-                  onClick={() => handleEdit(selectedClient.dni!)}
-                  className="edit-btn-view"
-                >
-                  <span className="btn-icon-view">✏️</span>
-                  Editar Cliente
-                </button>
-                <button
-                  onClick={() => setShowViewModal(false)}
-                  className="close-btn-view"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal para Ver Cliente */}
       {showViewModal && selectedClient && (

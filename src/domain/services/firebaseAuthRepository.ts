@@ -3,11 +3,16 @@ import { UserRegisterDto } from "../../application/dtos/UserRegisterDto";
 import { UserLoginDto } from "../../application/dtos/UserLoginDto";
 import { ClientRegisterDto } from "../../application/dtos/ClientRegisterDto";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { FirebaseError } from "firebase/app";
 import { app_auth, app_DB } from "./firebaseConfig";
 
 export class FirebaseAuthRepository implements IUserRepository {
+    async deleteUserByUid(uid: string): Promise<void> {
+        const usersRef = doc(app_DB, "users", uid);
+        await deleteDoc(usersRef);
+    }
+
     async registerClient(clienDto: ClientRegisterDto): Promise<void> {
         const { name, email, password, role, ...extraField } = clienDto;
 
