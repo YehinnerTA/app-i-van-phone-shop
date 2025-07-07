@@ -1,12 +1,45 @@
 import { IUserRepository } from "../respositories/IUserRepository";
 import { UserRegisterDto } from "../../application/dtos/UserRegisterDto";
 import { UserLoginDto } from "../../application/dtos/UserLoginDto";
+import { ClientRegisterDto } from "../../application/dtos/ClientRegisterDto";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FirebaseError } from "firebase/app";
 import { app_auth, app_DB } from "./firebaseConfig";
 
 export class FirebaseAuthRepository implements IUserRepository {
+    async registerClient(clienDto: ClientRegisterDto): Promise<void> {
+        const { name, email, password, role, ...extraField } = clienDto;
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(app_auth, email, password);
+            const user = userCredential.user;
+
+            await setDoc(doc(app_DB, "users", user.uid), {
+                name,
+                email,
+                role: role || "cliente",
+                createAt: new Date(),
+                ...extraField,
+            });
+        } catch (err: unknown) {
+            if (err instanceof FirebaseError) {
+                switch (err.code) {
+                    case "auth/email-already-in-use":
+                        throw new Error("El correo electrónico ya está registrado.");
+                    case "auth/invalid-email":
+                        throw new Error("El correo electrónico no es válido.");
+                    case "auth/weak-password":
+                        throw new Error("La contraseña es demasiado débil. Usa al menos 6 caracteres.");
+                    default:
+                        throw new Error("Error: " + err.message);
+                }
+            } else {
+                throw new Error("Ocurrió un error inesperado.");
+            }
+        }
+    }
+
     async registerUser(userDto: UserRegisterDto): Promise<void> {
         const { name, email, password, confirmPassword } = userDto;
 

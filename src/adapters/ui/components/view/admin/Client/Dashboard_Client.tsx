@@ -31,6 +31,7 @@ const Dashboard_Client: React.FC = () => {
     filteredClient,
     searchTerm,
     setSearchTerm,
+    setEstado,
   } = useDashboardClient();
 
   return (
@@ -56,32 +57,31 @@ const Dashboard_Client: React.FC = () => {
 
         <div className="list-product-container">
           {filteredClient.map((cliente) => (
-            <div className="card-list-product" key={cliente.id}>
-              <span className="dashboard-card-img">{cliente.imagen}</span>
+            <div className="card-list-product" key={cliente.dni}>
+              <span className="dashboard-card-img">👤</span>
               <div className="dashboard-card-info">
-                <span className="dashboard-card-title">{cliente.nombre}</span>
-                <div className="dashboard-card-price">{cliente.estado}</div>
-                <div className="dashboard-card-stock">{cliente.Registor}</div>
+                <span className="dashboard-card-title">{cliente.name}</span>
+                <div className="dashboard-card-price">{cliente.role}</div>
               </div>
 
               <div className="dashboard-card-actions">
                 <button
                   className="dashboard-action-btn dashboard-btn-view"
-                  onClick={() => handleView(cliente.id)}
+                  onClick={() => handleView(cliente.dni!)}
                   title="Ver"
                 >
                   👁️
                 </button>
                 <button
                   className="dashboard-action-btn dashboard-btn-edit"
-                  onClick={() => handleEdit(cliente.id)}
+                  onClick={() => handleEdit(cliente.dni!)}
                   title="Editar"
                 >
                   ✏️
                 </button>
                 <button
                   className="dashboard-action-btn dashboard-btn-delete"
-                  onClick={() => handleDelete(cliente.id)}
+                  onClick={() => handleDelete(cliente.dni!)}
                   title="Eliminar"
                 >
                   🗑️
@@ -98,7 +98,6 @@ const Dashboard_Client: React.FC = () => {
           <div className="modal-content-view">
             <div className="modal-header-view">
               <div className="modal-header-title">
-                <span className="modal-user-icon">👤</span>
                 <h2>Información del Cliente</h2>
               </div>
               <button onClick={() => setShowViewModal(false)} className="modal-close-btn">
@@ -111,10 +110,10 @@ const Dashboard_Client: React.FC = () => {
                 <div className="avatar-circle-view">
                   <span className="avatar-icon-view">👤</span>
                 </div>
-                <h3>{selectedClient.nombre}</h3>
-                <p className="client-role">{selectedClient.estado}</p>
-                <span className={`client-status ${selectedClient.estado.toLowerCase()}`}>
-                  {selectedClient.estado}
+                <h3>{selectedClient.name}</h3>
+                <p className="client-role">{selectedClient.role}</p>
+                <span className={`client-status ${selectedClient.role.toLowerCase()}`}>
+                  {selectedClient.role}
                 </span>
               </div>
 
@@ -131,22 +130,14 @@ const Dashboard_Client: React.FC = () => {
                   <span className="info-icon-view">📱</span>
                   <div>
                     <p className="info-label-view">Teléfono</p>
-                    <p className="info-value-view">{selectedClient.celular || 'No especificado'}</p>
-                  </div>
-                </div>
-
-                <div className="info-item-view">
-                  <span className="info-icon-view">📅</span>
-                  <div>
-                    <p className="info-label-view">Fecha de Registro</p>
-                    <p className="info-value-view">{selectedClient.Registor}</p>
+                    <p className="info-value-view">{selectedClient.phone || 'No especificado'}</p>
                   </div>
                 </div>
               </div>
 
               <div className="modal-actions-view">
                 <button
-                  onClick={() => handleEdit(selectedClient.id)}
+                  onClick={() => handleEdit(selectedClient.dni!)}
                   className="edit-btn-view"
                 >
                   <span className="btn-icon-view">✏️</span>
@@ -180,13 +171,10 @@ const Dashboard_Client: React.FC = () => {
 
             <div className="client-view-modal-body">
               <div className="client-view-avatar-container">
-                <div className="client-view-avatar-circle">
-                  <span className="client-view-avatar-icon">👤</span>
-                </div>
-                <h3 className="client-view-name">{selectedClient.nombre}</h3>
-                <p className="client-view-role">{selectedClient.estado}</p>
-                <span className={`client-view-status client-view-status-${selectedClient.estado.toLowerCase()}`}>
-                  {selectedClient.estado}
+                <h3 className="client-view-name">{selectedClient.name}</h3>
+                <p className="client-view-role">{selectedClient.role}</p>
+                <span className={`client-view-status client-view-status-${selectedClient.role.toLowerCase()}`}>
+                  {selectedClient.role}
                 </span>
               </div>
 
@@ -203,22 +191,14 @@ const Dashboard_Client: React.FC = () => {
                   <span className="client-view-info-icon">📱</span>
                   <div className="client-view-info-text">
                     <p className="client-view-info-label">Teléfono</p>
-                    <p className="client-view-info-value">{selectedClient.celular || 'No especificado'}</p>
-                  </div>
-                </div>
-
-                <div className="client-view-info-item">
-                  <span className="client-view-info-icon">📅</span>
-                  <div className="client-view-info-text">
-                    <p className="client-view-info-label">Fecha de Registro</p>
-                    <p className="client-view-info-value">{selectedClient.Registor}</p>
+                    <p className="client-view-info-value">{selectedClient.phone || 'No especificado'}</p>
                   </div>
                 </div>
               </div>
 
               <div className="client-view-actions">
                 <button
-                  onClick={() => handleEdit(selectedClient.id)}
+                  onClick={() => handleEdit(selectedClient.dni!)}
                   className="client-view-edit-btn"
                 >
                   <span className="client-view-edit-icon">✏️</span>
@@ -256,8 +236,8 @@ const Dashboard_Client: React.FC = () => {
                   <label className="client-edit-form-label">Nombre completo</label>
                   <input
                     type="text"
-                    value={selectedClient.nombre}
-                    onChange={(e) => handleInputChange('nombre', e.target.value)}
+                    value={selectedClient.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     className="client-edit-form-input"
                   />
                 </div>
@@ -266,8 +246,8 @@ const Dashboard_Client: React.FC = () => {
                   <label className="client-edit-form-label">Estado</label>
                   <select
                     id="client-edit-estado-select"
-                    value={selectedClient.estado}
-                    onChange={(e) => handleInputChange('estado', e.target.value)}
+                    value={selectedClient.role}
+                    onChange={(e) => handleInputChange('role', e.target.value)}
                     className="client-edit-form-input"
                     aria-label="Seleccionar estado del cliente"
                   >
@@ -291,8 +271,8 @@ const Dashboard_Client: React.FC = () => {
                   <label className="client-edit-form-label">Teléfono</label>
                   <input
                     type="text"
-                    value={selectedClient.celular || ''}
-                    onChange={(e) => handleInputChange('celular', e.target.value)}
+                    value={selectedClient.phone || ''}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
                     className="client-edit-form-input"
                   />
                 </div>
@@ -354,16 +334,13 @@ const Dashboard_Client: React.FC = () => {
                   <select
                     aria-label='estado'
                     className="client-add-form-input"
-                    value={selectedClient?.estado || 'vendedor'}
-                    onChange={(e) => {
-                      if (selectedClient) {
-                        handleInputChange('estado', e.target.value);
-                      }
-                    }}
+                    value={selectedClient?.role || 'vendedor'}
+                    onChange={(e) => setEstado(e.target.value as 'admin' | 'cliente' | 'vendedor' | 'cajero')}
                   >
                     <option value="cajero">Cajero</option>
                     <option value="vendedor">Vendedor</option>
                     <option value="admin">Administrador</option>
+                    <option value="cliente">Cliente</option>
                   </select>
                 </div>
 

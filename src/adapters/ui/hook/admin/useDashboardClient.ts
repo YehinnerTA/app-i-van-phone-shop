@@ -1,17 +1,11 @@
-import { useState } from 'react';
-
-interface Cliente {
-    id: number;
-    nombre: string;
-    imagen: string;
-    estado: string;
-    Registor: string;
-    email?: string;
-    celular?: string;
-    dni?: string;
-}
+import { useEffect, useState } from 'react';
+import { FirebaseAuthRepository } from '../../../../domain/services/firebaseAuthRepository';
+import { ClientRegisterDto } from '../../../../application/dtos/ClientRegisterDto';
+import { collection, getDocs } from 'firebase/firestore';
+import { app_DB } from '../../../../domain/services/firebaseConfig';
 
 export const useDashboardClient = () => {
+    const authRepo = new FirebaseAuthRepository();
     const [showModal, setShowModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -21,14 +15,9 @@ export const useDashboardClient = () => {
     const [celular, setCelular] = useState('');
     const [dni, setDni] = useState('');
     const [contrasena, setContrasena] = useState('');
-    const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
-    const [clientes, setClientes] = useState<Cliente[]>([
-        { id: 1, nombre: 'Yehinner Torres', imagen: '👤', estado: 'cajero', Registor: '15/12/2025' },
-        { id: 2, nombre: 'Nicolas Astorga', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
-        { id: 3, nombre: 'Angel Bonifacio', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
-        { id: 4, nombre: 'Ariana Ypanaque', imagen: '👤', estado: 'cajero', Registor: '15/12/2029' },
-        { id: 5, nombre: 'Eros Sanchez', imagen: '👤', estado: 'vendedor', Registor: '15/12/2029' },
-    ]);
+    const [estado, setEstado] = useState<'admin' | 'cliente' | 'vendedor' | 'cajero'>('vendedor');
+    const [selectedClient, setSelectedClient] = useState<ClientRegisterDto | null>(null);
+    const [clientes, setClientes] = useState<ClientRegisterDto[]>([]);
 
     const handleLimpiar = () => {
         setNombre('');
@@ -36,18 +25,43 @@ export const useDashboardClient = () => {
         setCelular('');
         setDni('');
         setContrasena('');
+        setEstado('vendedor');
     };
 
-    const handleView = (id: number) => {
-        const cliente = clientes.find(c => c.id === id);
+    const fetchClientes = async () => {
+        const snapshot = await getDocs(collection(app_DB, 'users'));
+        const users: ClientRegisterDto[] = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            users.push({
+                name: data.name,
+                email: data.email,
+                password: data.contrasena,
+                role: data.role,
+                phone: data.phone || '',
+                dni: data.dni || '',
+            });
+        });
+
+        setClientes(users);
+    };
+
+    useEffect(() => {
+        fetchClientes();
+    }, []);
+
+
+    const handleView = (email: string) => {
+        const cliente = clientes.find(c => c.email === email);
         if (cliente) {
             setSelectedClient(cliente);
             setShowViewModal(true);
         }
     };
 
-    const handleEdit = (id: number) => {
-        const cliente = clientes.find(c => c.id === id);
+    const handleEdit = (email: string) => {
+        const cliente = clientes.find(c => c.email === email);
         if (cliente) {
             setSelectedClient({ ...cliente });
             setShowViewModal(false);
@@ -57,50 +71,60 @@ export const useDashboardClient = () => {
 
     const handleSaveEdit = () => {
         if (selectedClient) {
-            setClientes(prev => prev.map(c =>
-                c.id === selectedClient.id ? { ...selectedClient } : { ...c }
-            ));
+            setClientes(prev =>
+                prev.map(c =>
+                    c.email === selectedClient.email ? { ...selectedClient } : { ...c }
+                )
+            );
             setShowEditModal(false);
         }
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (email: string) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
-            setTimeout(() => {
-                setClientes(prevClientes => prevClientes.filter(cliente => cliente.id !== id));
-            }, 300);
+            setClientes(prev => prev.filter(c => c.email !== email));
         }
     };
 
-    const handleAddClient = () => {
-        const newClient: Cliente = {
-            id: Math.max(...clientes.map(c => c.id)) + 1,
-            nombre,
-            imagen: '👤',
-            estado: selectedClient?.estado || 'vendedor',
-            Registor: new Date().toLocaleDateString(),
-            email: email || undefined,
-            celular: celular || undefined,
-            dni: dni || undefined
-        };
+    const handleAddClient = async () => {
+        try {
+            const clientDto: ClientRegisterDto = {
+                name: nombre,
+                email,
+                password: contrasena,
+                role: estado,
+                phone: celular,
+                dni,
+            };
 
-        setClientes(prev => [...prev, newClient]);
-        handleLimpiar();
-        setShowModal(false);
+            await authRepo.registerClient(clientDto);
+            await fetchClientes();
+
+            handleLimpiar();
+            setShowModal(false);
+            alert('Cliente registrado exitosamente.');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert('Error al registrar cliente: ' + error.message);
+            } else {
+                alert('Error desconocido al registrar cliente.');
+            }
+        }
     };
 
     const filteredClient = clientes.filter(cliente =>
-        cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        cliente.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = (field: keyof ClientRegisterDto, value: string) => {
         if (selectedClient) {
             setSelectedClient({
                 ...selectedClient,
-                [field]: value
+                [field]: value,
             });
         }
     };
+
 
     return {
         handleInputChange,
@@ -132,5 +156,6 @@ export const useDashboardClient = () => {
         searchTerm,
         setSearchTerm,
         clientes,
+        estado, setEstado,
     };
 };
