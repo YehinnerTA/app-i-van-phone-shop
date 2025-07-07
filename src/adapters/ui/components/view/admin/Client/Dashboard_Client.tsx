@@ -11,7 +11,7 @@ const Dashboard_Client: React.FC = () => {
     showEditModal,
     setShowEditModal,
     selectedClient,
-    setSelectedClient,
+    handleInputChange,
     nombre,
     setNombre,
     email,
@@ -32,15 +32,6 @@ const Dashboard_Client: React.FC = () => {
     searchTerm,
     setSearchTerm,
   } = useDashboardClient();
-
-  const handleInputChange = (field: string, value: string) => {
-    if (selectedClient) {
-      setSelectedClient({
-        ...selectedClient,
-        [field]: value
-      });
-    }
-  };
 
   return (
     <div className="dashboard-client">

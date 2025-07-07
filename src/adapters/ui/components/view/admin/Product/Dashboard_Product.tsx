@@ -4,6 +4,8 @@ import './Dashboard_Product.css';
 
 const Dashboard_Product: React.FC = () => {
   const {
+    formatCategoryName,
+    getProductIcon,
     modalState,
     selectedProduct,
     searchTerm,
@@ -28,33 +30,6 @@ const Dashboard_Product: React.FC = () => {
     phonesCount,
     accessoriesCount
   } = useDashboardProduct();
-
-  // Función para obtener el icono según la categoría
-  const getProductIcon = (category: string) => {
-    switch (category) {
-      case 'celulares':
-        return '📱';
-      case 'audifonos':
-        return '🎧';
-      case 'accesorios':
-        return '🛍️';
-      case 'casos':
-        return '📦';
-      default:
-        return '🛍️';
-    }
-  };
-
-  // Función para formatear el nombre de la categoría
-  const formatCategoryName = (category: string) => {
-    const categoryMap: { [key: string]: string } = {
-      'celulares': 'Celulares',
-      'accesorios': 'Accesorios',
-      'casos': 'Casos',
-      'audifonos': 'Audífonos'
-    };
-    return categoryMap[category] || category;
-  };
 
   return (
     <div className='dashboard-product'>
@@ -217,15 +192,6 @@ const Dashboard_Product: React.FC = () => {
                   required
                 />
               </div>
-              {/* <div className="dashboard-product-form-group">
-                <label>Imagen del Producto</label>
-                <input
-                  type="file"
-                  name="img"
-                  accept="image/*"
-                  onChange={handleInputChange}
-                />
-              </div> */}
               <div className="dashboard-product-modal-actions">
                 <button
                   type="button"
@@ -300,7 +266,7 @@ const Dashboard_Product: React.FC = () => {
               <label>Fecha de Agregado</label>
               <input
                 type="text"
-                value={selectedProduct.createdAt?.toLocaleDateString() || 'Fecha no disponible'}
+                value={selectedProduct.dateAdded}
                 readOnly
               />
             </div>

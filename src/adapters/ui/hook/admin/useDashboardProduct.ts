@@ -1,22 +1,68 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { ProductDto, ProductWithId } from '../../../../application/dtos/ProductDto';
-import { AddProductUseCase, GetProductsUseCase, DeleteProductUseCase, UpdateProductUseCase } from '../../../../application/useCases/ProductUseCase';
-import { FirebaseProductRepository } from '../../../../domain/services/firebaseProductRepository';
+import { useState } from 'react';
+
+interface Product {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    stock: number;
+    description: string;
+    dateAdded: string;
+}
 
 const useDashboardProduct = () => {
-    const productRepository = useMemo(() => new FirebaseProductRepository(), []);
-    const getProductsUseCase = useMemo(() => new GetProductsUseCase(productRepository), [productRepository]);
-    const addProductUseCase = useMemo(() => new AddProductUseCase(productRepository), [productRepository]);
-    const updateProductUseCase = useMemo(() => new UpdateProductUseCase(productRepository), [productRepository]);
-    const deleteProductUseCase = useMemo(() => new DeleteProductUseCase(productRepository), [productRepository]);
-
-    const [modalState, setModalState] = useState({ add: false, details: false, delete: false });
-    const [selectedProduct, setSelectedProduct] = useState<ProductWithId | null>(null);
+    // Estados para los modales
+    const [modalState, setModalState] = useState({
+        add: false,
+        details: false,
+        delete: false
+    });
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
-    const [products, setProducts] = useState<ProductWithId[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [newProduct, setNewProduct] = useState<ProductDto>({
+
+    // Datos de ejemplo de productos
+    const [products, setProducts] = useState<Product[]>([
+        {
+            id: 1,
+            name: 'iPhone 15 Pro Max',
+            category: 'celulares',
+            price: 1299.99,
+            stock: 25,
+            description: 'iPhone 15 Pro Max con pantalla de 6.7 pulgadas, cámara triple de 48MP, chip A17 Pro y diseño premium en titanio.',
+            dateAdded: '15 de Marzo, 2024'
+        },
+        {
+            id: 2,
+            name: 'Samsung Galaxy S24',
+            category: 'celulares',
+            price: 899.99,
+            stock: 42,
+            description: 'Samsung Galaxy S24 con pantalla Dynamic AMOLED 2X, cámara de 108MP y procesador Exynos 2200.',
+            dateAdded: '10 de Marzo, 2024'
+        },
+        {
+            id: 3,
+            name: 'AirPods Pro 2',
+            category: 'audifonos',
+            price: 249.99,
+            stock: 18,
+            description: 'AirPods Pro con cancelación activa de ruido, sonido adaptativo y resistencia al agua IPX4.',
+            dateAdded: '5 de Marzo, 2024'
+        },
+        {
+            id: 4,
+            name: 'Google Pixel 8',
+            category: 'celulares',
+            price: 699.99,
+            stock: 8,
+            description: 'Google Pixel 8 con cámara de 50MP, Tensor G3 y actualizaciones garantizadas por 5 años.',
+            dateAdded: '1 de Marzo, 2024'
+        }
+    ]);
+
+    // Estados para el formulario de agregar producto
+    const [newProduct, setNewProduct] = useState<Omit<Product, 'id' | 'dateAdded'>>({
         name: '',
         category: '',
         price: 0,
@@ -24,95 +70,25 @@ const useDashboardProduct = () => {
         description: ''
     });
 
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        try {
-            const fetched: ProductWithId[] = await getProductsUseCase.execute();
-            setProducts(fetched);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [getProductsUseCase]);
-
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
-
-    const handleAddProduct = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (
-            !newProduct.name.trim() ||
-            !newProduct.category.trim() ||
-            newProduct.price <= 0 ||
-            newProduct.stock < 0
-        ) {
-            alert('Por favor completa todos los campos correctamente');
-            return;
-        }
-
-        try {
-            await addProductUseCase.execute(newProduct);
-            await fetchProducts();
-            closeAddModal();
-            alert('Producto agregado exitosamente');
-        } catch (err) {
-            console.error(err);
-            alert('Error al agregar producto');
-        }
+    // Funciones para abrir modales
+    const openAddModal = () => {
+        setModalState({ add: true, details: false, delete: false });
     };
 
-    const handleUpdateProduct = async (id: string, updatedProduct: ProductDto) => {
-        try {
-            await updateProductUseCase.execute(id, updatedProduct);
-            await fetchProducts();
-            closeDetailsModal();
-            alert('Producto actualizado exitosamente');
-        } catch (err) {
-            console.error(err);
-            alert('Error al actualizar producto');
-        }
-    };
-
-    const handleDeleteProduct = async () => {
-        if (!selectedProduct?.id) return;
-
-        try {
-            await deleteProductUseCase.execute(selectedProduct.id);
-            await fetchProducts();
-            closeDeleteModal();
-            alert('Producto eliminado exitosamente');
-        } catch (err) {
-            console.error(err);
-            alert('Error al eliminar producto');
-        }
-    };
-
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = filterCategory ? product.category === filterCategory : true;
-        return matchesSearch && matchesCategory;
-    });
-
-    const totalProducts = products.length;
-    const lowStockProducts = products.filter(p => p.stock < 10).length;
-    const phonesCount = products.filter(p => p.category === 'celulares').length;
-    const accessoriesCount = products.filter(p => p.category === 'accesorios').length;
-
-    const openAddModal = () => setModalState({ add: true, details: false, delete: false });
-    const openDetailsModal = (product: { id: string } & ProductDto) => {
+    const openDetailsModal = (product: Product) => {
         setSelectedProduct(product);
         setModalState({ add: false, details: true, delete: false });
     };
-    const openDeleteModal = (product: { id: string } & ProductDto) => {
+
+    const openDeleteModal = (product: Product) => {
         setSelectedProduct(product);
         setModalState({ add: false, details: false, delete: true });
     };
 
+    // Funciones para cerrar modales
     const closeAddModal = () => {
-        setModalState(prev => ({ ...prev, add: false }));
+        setModalState({ ...modalState, add: false });
+        // Resetear formulario al cerrar
         setNewProduct({
             name: '',
             category: '',
@@ -123,15 +99,16 @@ const useDashboardProduct = () => {
     };
 
     const closeDetailsModal = () => {
-        setModalState(prev => ({ ...prev, details: false }));
+        setModalState({ ...modalState, details: false });
         setSelectedProduct(null);
     };
 
     const closeDeleteModal = () => {
-        setModalState(prev => ({ ...prev, delete: false }));
+        setModalState({ ...modalState, delete: false });
         setSelectedProduct(null);
     };
 
+    // Cerrar modal haciendo click fuera
     const handleModalBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             if (modalState.add) closeAddModal();
@@ -140,17 +117,105 @@ const useDashboardProduct = () => {
         }
     };
 
+    // Manejar cambios en el formulario
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-
+        const { name, value } = e.target;
         setNewProduct(prev => ({
             ...prev,
-            [name]: type === 'number' ? Number(value) : value
+            [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
         }));
     };
 
+    // Agregar nuevo producto
+    const handleAddProduct = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validar campos requeridos
+        if (!newProduct.name || !newProduct.category || newProduct.price <= 0 || newProduct.stock < 0) {
+            alert('Por favor completa todos los campos correctamente');
+            return;
+        }
+
+        const newId = Math.max(...products.map(p => p.id), 0) + 1;
+        const today = new Date().toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        const productToAdd: Product = {
+            ...newProduct,
+            id: newId,
+            dateAdded: today
+        };
+
+        setProducts([...products, productToAdd]);
+
+        // Resetear formulario
+        setNewProduct({
+            name: '',
+            category: '',
+            price: 0,
+            stock: 0,
+            description: ''
+        });
+
+        closeAddModal();
+        alert('Producto agregado exitosamente');
+    };
+
+    // Eliminar producto
+    const handleDeleteProduct = () => {
+        if (selectedProduct) {
+            setProducts(products.filter(p => p.id !== selectedProduct.id));
+            closeDeleteModal();
+            alert('Producto eliminado exitosamente');
+        }
+    };
+
+    // Filtrar productos por búsqueda y categoría
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = filterCategory ? product.category === filterCategory : true;
+        return matchesSearch && matchesCategory;
+    });
+
+    // Estadísticas
+    const totalProducts = products.length;
+    const lowStockProducts = products.filter(p => p.stock < 10).length;
+    const phonesCount = products.filter(p => p.category === 'celulares').length;
+    const accessoriesCount = products.filter(p => p.category === 'accesorios').length;
+
+    // Función para obtener el icono según la categoría
+    const getProductIcon = (category: string) => {
+        switch (category) {
+            case 'celulares':
+                return '📱';
+            case 'audifonos':
+                return '🎧';
+            case 'accesorios':
+                return '🛍️';
+            case 'casos':
+                return '📦';
+            default:
+                return '🛍️';
+        }
+    };
+
+    // Función para formatear el nombre de la categoría
+    const formatCategoryName = (category: string) => {
+        const categoryMap: { [key: string]: string } = {
+            'celulares': 'Celulares',
+            'accesorios': 'Accesorios',
+            'casos': 'Casos',
+            'audifonos': 'Audífonos'
+        };
+        return categoryMap[category] || category;
+    };
+
     return {
-        loading,
+        formatCategoryName,
+        getProductIcon,
         modalState,
         selectedProduct,
         searchTerm,
@@ -168,13 +233,12 @@ const useDashboardProduct = () => {
         handleModalBackdropClick,
         handleInputChange,
         handleAddProduct,
-        handleUpdateProduct,
         handleDeleteProduct,
         filteredProducts,
         totalProducts,
         lowStockProducts,
         phonesCount,
-        accessoriesCount,
+        accessoriesCount
     };
 };
 

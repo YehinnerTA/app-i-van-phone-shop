@@ -93,7 +93,17 @@ export const useDashboardClient = () => {
         cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleInputChange = (field: string, value: string) => {
+        if (selectedClient) {
+            setSelectedClient({
+                ...selectedClient,
+                [field]: value
+            });
+        }
+    };
+
     return {
+        handleInputChange,
         showModal,
         setShowModal,
         showViewModal,
