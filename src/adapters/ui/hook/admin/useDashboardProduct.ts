@@ -1,66 +1,14 @@
-import { useState } from 'react';
-
-interface Product {
-    id: number;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    description: string;
-    image?: string;
-    dateAdded: string;
-}
+import { useEffect, useState } from 'react';
+import { Product } from '../../../../domain/entities/Product';
+import { AddProductUseCase, GetProductsUseCase, DeleteProductUseCase, UpdateProductUseCase } from '../../../../application/useCases/ProductUseCase';
 
 const useDashboardProduct = () => {
-    // Estados para los modales
-    const [modalState, setModalState] = useState({
-        add: false,
-        details: false,
-        delete: false
-    });
+    const [modalState, setModalState] = useState({ add: false, details: false, delete: false });
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
-
-    // Datos de ejemplo de productos
-    const [products, setProducts] = useState<Product[]>([
-        {
-            id: 1,
-            name: 'iPhone 15 Pro Max',
-            category: 'celulares',
-            price: 1299.99,
-            stock: 25,
-            description: 'iPhone 15 Pro Max con pantalla de 6.7 pulgadas, cámara triple de 48MP, chip A17 Pro y diseño premium en titanio.',
-            dateAdded: '15 de Marzo, 2024'
-        },
-        {
-            id: 2,
-            name: 'Samsung Galaxy S24',
-            category: 'celulares',
-            price: 899.99,
-            stock: 42,
-            description: 'Samsung Galaxy S24 con pantalla Dynamic AMOLED 2X, cámara de 108MP y procesador Exynos 2200.',
-            dateAdded: '10 de Marzo, 2024'
-        },
-        {
-            id: 3,
-            name: 'AirPods Pro 2',
-            category: 'audifonos',
-            price: 249.99,
-            stock: 18,
-            description: 'AirPods Pro con cancelación activa de ruido, sonido adaptativo y resistencia al agua IPX4.',
-            dateAdded: '5 de Marzo, 2024'
-        },
-        {
-            id: 4,
-            name: 'Google Pixel 8',
-            category: 'celulares',
-            price: 699.99,
-            stock: 8,
-            description: 'Google Pixel 8 con cámara de 50MP, Tensor G3 y actualizaciones garantizadas por 5 años.',
-            dateAdded: '1 de Marzo, 2024'
-        }
-    ]);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Estados para el formulario de agregar producto
     const [newProduct, setNewProduct] = useState<Omit<Product, 'id' | 'dateAdded'>>({
@@ -68,14 +16,90 @@ const useDashboardProduct = () => {
         category: '',
         price: 0,
         stock: 0,
-        description: ''
+        description: '',
+        img: ''
     });
 
-    // Funciones para abrir modales
-    const openAddModal = () => {
-        setModalState({ add: true, details: false, delete: false });
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            const allProducts = await GetProductsUseCase();
+            setProducts(allProducts);
+            setLoading(false);
+        };
+        fetchProducts();
+    }, []);
+
+    // Agregar nuevo producto
+    const handleAddProduct = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!newProduct.name || !newProduct.category || newProduct.price <= 0 || newProduct.stock < 0) {
+            alert('Por favor completa todos los campos correctamente');
+            return;
+        }
+
+        try {
+            await AddProductUseCase(newProduct);
+            const updatedProducts = await GetProductsUseCase();
+            setProducts(updatedProducts);
+            closeAddModal();
+            alert('Producto agregado exitosamente');
+        } catch (err) {
+            console.error(err);
+            alert('Error al agregar producto');
+        }
     };
 
+    // Editar producto
+    const handleUpdateProduct = async (updatedData: Product) => {
+        try {
+            await UpdateProductUseCase(updatedData);
+            const updatedProducts = await GetProductsUseCase();
+            setProducts(updatedProducts);
+            closeDetailsModal();
+            alert('Producto actualizado exitosamente');
+        } catch (err) {
+            console.error(err);
+            alert('Error al actualizar producto');
+        }
+    };
+
+    // Eliminar producto
+    const handleDeleteProduct = async () => {
+        if (selectedProduct) {
+            try {
+                await DeleteProductUseCase(selectedProduct.id);
+                const updatedProducts = await GetProductsUseCase();
+                setProducts(updatedProducts);
+                closeDeleteModal();
+                alert('Producto eliminado exitosamente');
+            } catch (err) {
+                console.error(err);
+                alert('Error al eliminar producto');
+            }
+        }
+    };
+
+    // Filtrar productos por búsqueda y categoría
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = filterCategory ? product.category === filterCategory : true;
+        return matchesSearch && matchesCategory;
+    });
+
+    // Estadísticas
+    const totalProducts = products.length;
+    const lowStockProducts = products.filter(p => p.stock < 10).length;
+    const phonesCount = products.filter(p => p.category === 'celulares').length;
+    const accessoriesCount = products.filter(p => p.category === 'accesorios').length;
+
+    // Funciones para abrir modales
+    const openAddModal = () => setModalState({
+        add: true,
+        details: false,
+        delete: false
+    });
     const openDetailsModal = (product: Product) => {
         setSelectedProduct(product);
         setModalState({ add: false, details: true, delete: false });
@@ -89,13 +113,13 @@ const useDashboardProduct = () => {
     // Funciones para cerrar modales
     const closeAddModal = () => {
         setModalState({ ...modalState, add: false });
-        // Resetear formulario al cerrar
         setNewProduct({
             name: '',
             category: '',
             price: 0,
             stock: 0,
-            description: ''
+            description: '',
+            img: ''
         });
     };
 
@@ -127,67 +151,8 @@ const useDashboardProduct = () => {
         }));
     };
 
-    // Agregar nuevo producto
-    const handleAddProduct = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validar campos requeridos
-        if (!newProduct.name || !newProduct.category || newProduct.price <= 0 || newProduct.stock < 0) {
-            alert('Por favor completa todos los campos correctamente');
-            return;
-        }
-
-        const newId = Math.max(...products.map(p => p.id), 0) + 1;
-        const today = new Date().toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
-
-        const productToAdd: Product = {
-            ...newProduct,
-            id: newId,
-            dateAdded: today
-        };
-
-        setProducts([...products, productToAdd]);
-
-        // Resetear formulario
-        setNewProduct({
-            name: '',
-            category: '',
-            price: 0,
-            stock: 0,
-            description: ''
-        });
-
-        closeAddModal();
-        alert('Producto agregado exitosamente');
-    };
-
-    // Eliminar producto
-    const handleDeleteProduct = () => {
-        if (selectedProduct) {
-            setProducts(products.filter(p => p.id !== selectedProduct.id));
-            closeDeleteModal();
-            alert('Producto eliminado exitosamente');
-        }
-    };
-
-    // Filtrar productos por búsqueda y categoría
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = filterCategory ? product.category === filterCategory : true;
-        return matchesSearch && matchesCategory;
-    });
-
-    // Estadísticas
-    const totalProducts = products.length;
-    const lowStockProducts = products.filter(p => p.stock < 10).length;
-    const phonesCount = products.filter(p => p.category === 'celulares').length;
-    const accessoriesCount = products.filter(p => p.category === 'accesorios').length;
-
     return {
+        loading,
         modalState,
         selectedProduct,
         searchTerm,
@@ -205,6 +170,7 @@ const useDashboardProduct = () => {
         handleModalBackdropClick,
         handleInputChange,
         handleAddProduct,
+        handleUpdateProduct,
         handleDeleteProduct,
         filteredProducts,
         totalProducts,
