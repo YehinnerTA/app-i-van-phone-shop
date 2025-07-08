@@ -69,7 +69,7 @@ const Modal: React.FC<ModalProps> = ({
 
                 <div className="modal-buttons">
                     <button className="modal-button secondary" onClick={handleAddToFavorites}>{product.featured ? 'Quitar de Favoritos' : 'Añadir a Favoritos'}</button>
-                    <button className="modal-button primary" onClick={handlePrimaryButtonClick}>Comprar Ahora</button>
+                    <button className="modal-button primary" onClick={handlePrimaryButtonClick}>{product.buy ? 'Quitar del carrito' : 'Añadir al carrito'}</button>
                 </div>
             </div>
         </div>

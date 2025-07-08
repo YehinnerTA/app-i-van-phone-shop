@@ -44,15 +44,22 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
         if (!selectedProduct?.id) return;
 
         try {
+            const updatedBuyStatus = !selectedProduct.buy;
+
             await updateProductUseCase(selectedProduct.id, {
-                buy: true,
+                buy: updatedBuyStatus,
             });
+
             await fetchProducts();
-            alert('¡Producto añadido al carrito!');
+            alert(
+                updatedBuyStatus
+                    ? '¡Producto añadido al carrito!'
+                    : 'Producto eliminado del carrito'
+            );
             closeModal();
         } catch (error) {
-            console.error('Error al añadir producto al carrito:', error);
-            alert('Ocurrió un error al añadir el producto al carrito.');
+            console.error('Error al actualizar el carrito:', error);
+            alert('Ocurrió un error al actualizar el producto.');
         }
     }, [selectedProduct, fetchProducts, closeModal]);
 

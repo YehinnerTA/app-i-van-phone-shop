@@ -100,7 +100,7 @@ const CatalogProduct_LandingPage: React.FC = () => {
                                     <img className='product-item-product' src={product.image} alt={product.name} />
                                     <h3 className='product-item-title'>{product.name}</h3>
                                     <p className='product-item-price'>{product.price}</p>
-                                    <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
+                                    <button className='product-item-button' title='button-item' onClick={(e) => handleBuyClick(e, product)}>{product.buy ? 'Quitar del carrito' : 'Añadir al carrito'}</button>
                                 </div>
                             ))
                         ) : (

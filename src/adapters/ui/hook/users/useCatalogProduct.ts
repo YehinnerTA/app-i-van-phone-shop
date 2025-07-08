@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
 import { app_DB } from '../../../../domain/services/firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
+import { updateProductUseCase } from '../../../../application/useCases/RegisterProductUseCase';
 
 export interface ProductWithId extends ProductRegisterDto {
     id: string;
@@ -40,10 +41,22 @@ export const useCatalogProduct = () => {
         setSearchTerm('');
     };
 
-    const handleBuyClick = (event: React.MouseEvent) => {
+    const handleBuyClick = async (event: React.MouseEvent, product: ProductWithId) => {
         event.stopPropagation();
-        alert('Funcionalidad de compra - Aquí iría la lógica de compra');
+
+        try {
+            const updatedBuy = !product.buy;
+
+            await updateProductUseCase(product.id, { buy: updatedBuy });
+            await fetchProducts();
+
+            alert(updatedBuy ? '¡Producto añadido al carrito!' : 'Producto quitado del carrito');
+        } catch (error) {
+            console.error('Error al actualizar el carrito:', error);
+            alert('Ocurrió un error al actualizar el estado del carrito.');
+        }
     };
+
 
     const filteredProducts = products
         .filter(p => p.category.toLowerCase() === activeCategory.toLowerCase())

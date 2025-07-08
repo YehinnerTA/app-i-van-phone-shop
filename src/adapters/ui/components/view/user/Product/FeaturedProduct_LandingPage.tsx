@@ -46,7 +46,7 @@ const FeaturedProduct_LandingPage: React.FC = () => {
                             <img src={product.image} alt={product.name} className="featured-product-image" />
                             <h3 className="featured-product-title">{product.name}</h3>
                             <p className="featured-product-price">{product.price}</p>
-                            <button className="featured-product-button" onClick={handleBuyClick}>Comprar</button>
+                            <button className="featured-product-button" onClick={(e) => handleBuyClick(e, product)}>{product.buy ? 'Quitar del carrito' : 'Añadir al carrito'}</button>
                         </div>
                     )}
                     {filteredFeaturedProducts.length === 0 && (
