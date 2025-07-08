@@ -12,7 +12,6 @@ const Dashboard_Product: React.FC = () => {
     setSearchTerm,
     filterCategory,
     setFilterCategory,
-    // products,
     newProduct,
     openAddModal,
     openDetailsModal,
