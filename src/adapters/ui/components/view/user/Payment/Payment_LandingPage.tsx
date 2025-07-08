@@ -4,12 +4,12 @@ import { usePayment } from "../../../../hook/users/usePayment";
 
 const Payment_LandingPage: React.FC = () => {
     const {
-        quantity,
+        products,
         priceData,
-        increaseQuantity,
-        decreaseQuantity,
         removeItem,
         applyDiscount,
+        increaseQuantity,
+        decreaseQuantity,
     } = usePayment();
 
     return (
@@ -23,35 +23,39 @@ const Payment_LandingPage: React.FC = () => {
             </div>
 
             <div className="payment-landing-page-content">
-                {quantity > 0 && (
-                    <div className="payment-card-item-container">
-                        <div className="payment-card-item">
-                            <div className="payment-card-item-content">
-                                <img src="src/assets/images/apple-iphone13.png" alt="product-item" className="img-item-card" />
-                                <div className="payment-card-item-details">
-                                    <h2 className="payment-item-title">iPhone 15 Pro Max</h2>
-                                    <div className="payment-item-tags">
-                                        <span className="detail-color-item-tags">Azul</span>
-                                        <span className="detail-storage-item-tags">256gb</span>
-                                    </div>
-
-                                    <div className="payment-item-controller">
-                                        <div className="payment-item-number">
-                                            <button title="btn-item-quantity" id="quantity-btn-minus" className="btn-item-quantity" onClick={decreaseQuantity}>-</button>
-                                            <span className="quantity-product" id="quantity">{priceData.quantityDisplay}</span>
-                                            <button title="btn-item-quantity" id="quantity-btn-plus" className="btn-item-quantity" onClick={increaseQuantity}>+</button>
+                {products.length > 0 ? (
+                    products.map(product => (
+                        <div className="payment-card-item-container" key={product.id}>
+                            <div className="payment-card-item">
+                                <div className="payment-card-item-content">
+                                    <img src={product.image || 'src/assets/images/apple-iphone13.png'} alt={product.name} className="img-item-card" />
+                                    <div className="payment-card-item-details">
+                                        <h2 className="payment-item-title">{product.name}</h2>
+                                        <div className="payment-item-tags">
+                                            <span className="detail-color-item-tags">{product.category}</span>
+                                            <span className="detail-storage-item-tags">{product.memory || 'N/A'}</span>
                                         </div>
-                                        <div className="payment-item-delete">
-                                            <p className="item-price" id="itemPrice">{priceData.itemPrice}</p>
-                                            <button title="btn-item-delete" className="btn-item-delete" onClick={removeItem}>
-                                                <img src="src/assets/icons/delete.svg" alt="delete" className="icon-delete" />
-                                            </button>
+
+                                        <div className="payment-item-controller">
+                                            <div className="payment-item-number">
+                                                <button title="btn-item-quantity" id="quantity-btn-minus" className="btn-item-quantity" onClick={() => decreaseQuantity(product.id)}>-</button>
+                                                <span className="quantity-product" id="quantity">{product.quantity}</span>
+                                                <button title="btn-item-quantity" id="quantity-btn-plus" className="btn-item-quantity" onClick={() => increaseQuantity(product.id)}>+</button>
+                                            </div>
+                                            <div className="payment-item-delete">
+                                                <p className="item-price" id="itemPrice">S/.{product.price.toLocaleString()}</p>
+                                                <button title="btn-item-delete" className="btn-item-delete" onClick={() => removeItem(product.id)}>
+                                                    <img src="src/assets/icons/delete.svg" alt="delete" className="icon-delete" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    ))
+                ) : (
+                    <p className='Error-message-Payment'>Tu carrito está vacío</p>
                 )}
 
                 <div className="payment-card-item-discount">
@@ -68,18 +72,13 @@ const Payment_LandingPage: React.FC = () => {
                     </label>
                     <label className="payment-label">
                         <input type="radio" name="payment" className="payment-radio" value="paypal" />
-                        <img src="src/assets/icons/paypal.svg" alt="paypal" className="img-option" />
-                        PayPal
+                        <img src="src/assets/icons/yape.svg" alt="paypal" className="img-option" />
+                        Yape
                     </label>
                     <label className="payment-label">
-                        <input type="radio" name="payment" className="payment-radio" value="apple-pay" />
-                        <img src="src/assets/icons/apple-pay.svg" alt="apple-pay" className="img-option" />
-                        Apple Pay
-                    </label>
-                    <label className="payment-label">
-                        <input type="radio" name="payment" className="payment-radio" value="google-pay" />
-                        <img src="src/assets/icons/google-pay.svg" alt="Google-Pay" className="img-option" />
-                        Google Pay
+                        <input type="radio" name="payment" className="payment-radio" value="paypal" />
+                        <img src="src/assets/icons/efectivo.svg" alt="paypal" className="img-option" />
+                        Efectivo
                     </label>
                 </div>
 

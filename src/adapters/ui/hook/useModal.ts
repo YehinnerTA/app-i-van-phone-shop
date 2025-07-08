@@ -30,11 +30,6 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
         openModal();
     }, [openModal]);
 
-    const handleBuyClick = useCallback((event: React.MouseEvent) => {
-        event.stopPropagation();
-        alert('Funcionalidad de compra - Aquí iría la lógica de compra');
-    }, []);
-
     const handleModalOverlayClick = useCallback((event: React.MouseEvent) => {
         if (event.target === event.currentTarget) {
             closeModal();
@@ -45,10 +40,22 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
         closeModal();
     }, [closeModal]);
 
-    const handlePrimaryButtonClick = useCallback(() => {
-        alert('¡Producto añadido al carrito!');
-        closeModal();
-    }, [closeModal]);
+    const handlePrimaryButtonClick = useCallback(async () => {
+        if (!selectedProduct?.id) return;
+
+        try {
+            await updateProductUseCase(selectedProduct.id, {
+                buy: true,
+            });
+            await fetchProducts();
+
+            alert('¡Producto añadido al carrito!');
+            closeModal();
+        } catch (error) {
+            console.error('Error al añadir producto al carrito:', error);
+            alert('Ocurrió un error al añadir el producto al carrito.');
+        }
+    }, [selectedProduct, fetchProducts, closeModal]);
 
     const handleAddToFavorites = useCallback(async () => {
         if (selectedProduct?.id) {
@@ -74,7 +81,6 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
         isModalOpen,
         selectedProduct,
         handleProductClick,
-        handleBuyClick,
         handleModalOverlayClick,
         handleCloseClick,
         handlePrimaryButtonClick,

@@ -20,4 +20,6 @@ export interface ProductRegisterDto {
     connectivity?: string;   // Conectividad
 
     featured?: boolean;
+    buy?: boolean;
+    quantity?: number;
 }
