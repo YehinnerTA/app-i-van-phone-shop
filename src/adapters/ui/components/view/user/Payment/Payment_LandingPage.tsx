@@ -43,7 +43,7 @@ const Payment_LandingPage: React.FC = () => {
                                                 <button title="btn-item-quantity" id="quantity-btn-plus" className="btn-item-quantity" onClick={() => increaseQuantity(product.id)}>+</button>
                                             </div>
                                             <div className="payment-item-delete">
-                                                <p className="item-price" id="itemPrice">S/.{product.price.toLocaleString()}</p>
+                                                <p className="item-price" id="itemPrice">S/.{(product.price * product.quantity).toLocaleString()}</p>
                                                 <button title="btn-item-delete" className="btn-item-delete" onClick={() => removeItem(product.id)}>
                                                     <img src="src/assets/icons/delete.svg" alt="delete" className="icon-delete" />
                                                 </button>

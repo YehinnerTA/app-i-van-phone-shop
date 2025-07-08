@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { app_DB } from '../../../../domain/services/firebaseConfig';
 import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
@@ -52,7 +52,7 @@ export const usePayment = () => {
         await fetchBuyProducts();
     };
 
-    const calculateTotal = () => {
+    const priceData = useMemo(() => {
         const subtotal = products.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 1), 0);
         const discountAmount = subtotal * currentDiscount;
         const total = subtotal - discountAmount;
@@ -61,13 +61,11 @@ export const usePayment = () => {
             productCount: `${products.length} producto${products.length !== 1 ? 's' : ''}`,
             subtotal: `S/.${subtotal.toLocaleString()}`,
             discount: `S/.${discountAmount.toLocaleString()}`,
-            total: `S/.${total.toLocaleString()}`,
+            total: `S/.${total.toFixed(2)}`,
             quantityDisplay: products.reduce((sum, p) => sum + (p.quantity || 1), 0),
             itemPrice: `S/.${subtotal.toLocaleString()}`,
         };
-    };
-
-    const priceData = calculateTotal();
+    }, [products, currentDiscount]);
 
     const applyDiscount = () => {
         const input = document.querySelector('.text-card-discount') as HTMLInputElement;

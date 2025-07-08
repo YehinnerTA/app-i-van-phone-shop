@@ -48,7 +48,6 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
                 buy: true,
             });
             await fetchProducts();
-
             alert('¡Producto añadido al carrito!');
             closeModal();
         } catch (error) {
@@ -56,6 +55,7 @@ export const useModal = ({ fetchProducts }: UseModalProps) => {
             alert('Ocurrió un error al añadir el producto al carrito.');
         }
     }, [selectedProduct, fetchProducts, closeModal]);
+
 
     const handleAddToFavorites = useCallback(async () => {
         if (selectedProduct?.id) {
