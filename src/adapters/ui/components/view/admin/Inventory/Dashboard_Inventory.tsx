@@ -4,7 +4,6 @@ import { useDashboardInventory } from '../../../../hook/admin/useDashboardInvent
 
 const Dashboard_Inventory: React.FC = () => {
   const {
-    // products,
     searchTerm,
     categoryFilter,
     stockStatusFilter,

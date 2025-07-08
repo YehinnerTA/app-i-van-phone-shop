@@ -5,4 +5,8 @@ export interface ProductRegisterDto {
     stock: number;
     description: string;
     dateAdded: string;
+
+    sku?: string;
+    image?: string;
+    status?: 'active' | 'inactive' | 'archived';
 }

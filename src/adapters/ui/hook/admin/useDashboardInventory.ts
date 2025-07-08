@@ -1,70 +1,11 @@
-import { useState } from 'react';
-
-interface Product {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    sku: string;
-    status: 'online' | 'offline';
-    image: string;
-}
+import { useEffect, useState } from 'react';
+import { collection, doc, getDocs, updateDoc, addDoc } from 'firebase/firestore';
+import { app_DB, app_auth } from '../../../../domain/services/firebaseConfig';
+import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
+import { StockChangeDto } from '../../../../application/dtos/StockChangeDto';
 
 export const useDashboardInventory = () => {
-    // Estado para los productos
-    const [products, setProducts] = useState<Product[]>([
-        {
-            id: '1',
-            name: 'iPhone 15 Pro Max',
-            category: 'Smartphones',
-            price: 1299.00,
-            stock: 25,
-            sku: 'IP15PM',
-            status: 'online',
-            image: '📱'
-        },
-        {
-            id: '2',
-            name: 'Samsung Galaxy S24',
-            category: 'Smartphones',
-            price: 899.00,
-            stock: 8,
-            sku: 'SGS24',
-            status: 'online',
-            image: '📱'
-        },
-        {
-            id: '3',
-            name: 'AirPods Pro 2',
-            category: 'Audífonos',
-            price: 249.00,
-            stock: 18,
-            sku: 'APP2',
-            status: 'online',
-            image: '🎧'
-        },
-        {
-            id: '4',
-            name: 'Cargador USB-C 20W',
-            category: 'Cargadores',
-            price: 29.00,
-            stock: 0,
-            sku: 'CU20W',
-            status: 'offline',
-            image: '🔌'
-        },
-        {
-            id: '5',
-            name: 'Funda iPhone 15',
-            category: 'Fundas',
-            price: 39.00,
-            stock: 3,
-            sku: 'FI15',
-            status: 'online',
-            image: '🛡️'
-        }
-    ]);
+    const [products, setProducts] = useState<(ProductRegisterDto & { id: string })[]>([]);
 
     // Estado para los filtros
     const [searchTerm, setSearchTerm] = useState('');
@@ -73,7 +14,7 @@ export const useDashboardInventory = () => {
 
     // Estado para el modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+    const [currentProduct, setCurrentProduct] = useState<(ProductRegisterDto & { id: string }) | null>(null);
     const [newStock, setNewStock] = useState(0);
     const [changeReason, setChangeReason] = useState('Reposición de inventario');
     const [comments, setComments] = useState('');
@@ -82,14 +23,26 @@ export const useDashboardInventory = () => {
     const activeProducts = products.length;
     const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 5).length;
     const outOfStockProducts = products.filter(p => p.stock === 0).length;
-    const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
+    const totalValue = products.reduce((sum, product) => sum + product.price * product.stock, 0);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const snapshot = await getDocs(collection(app_DB, 'products'));
+            const fetchedProducts = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as (ProductRegisterDto & { id: string })[];
+            setProducts(fetchedProducts);
+        };
+
+        fetchProducts();
+    }, []);
 
     // Filtrar productos
     const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = categoryFilter === 'Todas las categorías' ||
-            product.category === categoryFilter;
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory =
+            categoryFilter === 'Todas las categorías' || product.category === categoryFilter;
 
         let matchesStockStatus = true;
         if (stockStatusFilter === 'Stock alto') {
@@ -106,7 +59,7 @@ export const useDashboardInventory = () => {
     });
 
     // Abrir modal para actualizar stock
-    const handleOpenModal = (product: Product) => {
+    const handleOpenModal = (product: ProductRegisterDto & { id: string }) => {
         setCurrentProduct(product);
         setNewStock(product.stock);
         setIsModalOpen(true);
@@ -122,19 +75,45 @@ export const useDashboardInventory = () => {
     };
 
     // Actualizar stock
-    const handleUpdateStock = () => {
+    const handleUpdateStock = async () => {
         if (!currentProduct || newStock < 0) {
             alert('Por favor ingresa una cantidad válida');
             return;
         }
 
-        setProducts(products.map(product =>
-            product.id === currentProduct.id ? { ...product, stock: Number(newStock) } : product
-        ));
+        try {
+            const productRef = doc(app_DB, 'products', currentProduct.id);
 
-        console.log(`Stock actualizado para ${currentProduct.name}: ${newStock} unidades`);
-        console.log('Motivo:', changeReason);
-        console.log('Comentarios:', comments);
+            // 1. Actualizar el stock
+            await updateDoc(productRef, {
+                stock: newStock
+            });
+
+            // 2. Crear historial de cambio
+            const stockHistoryRef = collection(productRef, 'stockHistory');
+            const changeDto: StockChangeDto = {
+                oldStock: currentProduct.stock,
+                newStock: newStock,
+                reason: changeReason,
+                comments: comments.trim() || undefined,
+                changedAt: new Date(),
+                changedBy: app_auth.currentUser?.uid || 'admin'
+            };
+
+            await addDoc(stockHistoryRef, changeDto);
+
+            // 3. Refrescar localmente el producto
+            setProducts(prev =>
+                prev.map(p =>
+                    p.id === currentProduct.id ? { ...p, stock: newStock } : p
+                )
+            );
+
+            console.log(`✅ Stock actualizado para ${currentProduct.name}`);
+        } catch (error) {
+            console.error('❌ Error al actualizar stock:', error);
+            alert('Error al actualizar el stock.');
+        }
 
         handleCloseModal();
     };
