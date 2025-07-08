@@ -12,18 +12,19 @@ const CatalogProduct_LandingPage: React.FC = () => {
         setSearchTerm,
         handleCategoryClick,
         handleBuyClick,
-        filteredProducts
+        filteredProducts,
+        fetchProducts,
     } = useCatalogProduct();
 
     const {
         isModalOpen,
+        selectedProduct,
         handleProductClick,
         handleModalOverlayClick,
-        handleModalContentClick,
         handleCloseClick,
         handlePrimaryButtonClick,
-        handleSecondaryButtonClick,
-    } = useModal();
+        handleAddToFavorites,
+    } = useModal({ fetchProducts });
 
     return (
         <div className="container-product">
@@ -94,10 +95,10 @@ const CatalogProduct_LandingPage: React.FC = () => {
 
                     <div className='product-list'>
                         {filteredProducts.length > 0 ? (
-                            filteredProducts.map((product, index) => (
-                                <div className="product-item" key={index} onClick={handleProductClick}>
-                                    <img className='product-item-product' src={product.img} alt={product.title} />
-                                    <h3 className='product-item-title'>{product.title}</h3>
+                            filteredProducts.map((product) => (
+                                <div className="product-item" key={product.id} onClick={() => handleProductClick(product)}>
+                                    <img className='product-item-product' src={product.image} alt={product.name} />
+                                    <h3 className='product-item-title'>{product.name}</h3>
                                     <p className='product-item-price'>{product.price}</p>
                                     <button className='product-item-button' title='button-item' onClick={handleBuyClick}>Comprar</button>
                                 </div>
@@ -109,14 +110,16 @@ const CatalogProduct_LandingPage: React.FC = () => {
                 </div>
             </div>
 
-            <Modal
-                isModalOpen={isModalOpen}
-                handleModalOverlayClick={handleModalOverlayClick}
-                handleModalContentClick={handleModalContentClick}
-                handleCloseClick={handleCloseClick}
-                handlePrimaryButtonClick={handlePrimaryButtonClick}
-                handleSecondaryButtonClick={handleSecondaryButtonClick}
-            />
+            {selectedProduct && (
+                <Modal
+                    isModalOpen={isModalOpen}
+                    handleModalOverlayClick={handleModalOverlayClick}
+                    handleCloseClick={handleCloseClick}
+                    handlePrimaryButtonClick={handlePrimaryButtonClick}
+                    handleAddToFavorites={handleAddToFavorites}
+                    product={selectedProduct}
+                />
+            )}
         </div>
     );
 };

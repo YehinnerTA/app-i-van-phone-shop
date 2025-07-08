@@ -1,6 +1,6 @@
 import React from "react";
 import './FeaturedProduct_LandingPage.css';
-import { useCatalogProduct } from '../../../../hook/users/useCatalogProduct';
+import { useCatalogProduct, ProductWithId } from '../../../../hook/users/useCatalogProduct';
 import { useModal } from '../../../../hook/useModal';
 import Modal from '../../../modal/Modal';
 
@@ -9,18 +9,19 @@ const FeaturedProduct_LandingPage: React.FC = () => {
         handleBuyClick,
         searchTermFeatured,
         setSearchTermFeatured,
-        filteredFeaturedProducts
+        filteredFeaturedProducts,
+        fetchProducts,
     } = useCatalogProduct();
 
     const {
         isModalOpen,
+        selectedProduct,
         handleProductClick,
         handleModalOverlayClick,
-        handleModalContentClick,
         handleCloseClick,
         handlePrimaryButtonClick,
-        handleSecondaryButtonClick
-    } = useModal();
+        handleAddToFavorites,
+    } = useModal({ fetchProducts });
 
     return (
         <div className="container-FeaturedProduct-LandingPage">
@@ -40,10 +41,10 @@ const FeaturedProduct_LandingPage: React.FC = () => {
                 </div>
 
                 <div className="featured-products">
-                    {filteredFeaturedProducts.map((product, index) =>
-                        <div className="item-featured-product" key={index} onClick={handleProductClick}>
-                            <img src={product.img} alt={product.title} className="featured-product-image" />
-                            <h3 className="featured-product-title">{product.title}</h3>
+                    {filteredFeaturedProducts.map((product: ProductWithId, index: number) =>
+                        <div className="item-featured-product" key={index} onClick={() => handleProductClick(product)}>
+                            <img src={product.image} alt={product.name} className="featured-product-image" />
+                            <h3 className="featured-product-title">{product.name}</h3>
                             <p className="featured-product-price">{product.price}</p>
                             <button className="featured-product-button" onClick={handleBuyClick}>Comprar</button>
                         </div>
@@ -54,14 +55,16 @@ const FeaturedProduct_LandingPage: React.FC = () => {
                 </div>
             </div>
 
-            <Modal
-                isModalOpen={isModalOpen}
-                handleModalOverlayClick={handleModalOverlayClick}
-                handleModalContentClick={handleModalContentClick}
-                handleCloseClick={handleCloseClick}
-                handlePrimaryButtonClick={handlePrimaryButtonClick}
-                handleSecondaryButtonClick={handleSecondaryButtonClick}
-            />
+            {selectedProduct && (
+                <Modal
+                    isModalOpen={isModalOpen}
+                    handleModalOverlayClick={handleModalOverlayClick}
+                    handleCloseClick={handleCloseClick}
+                    handlePrimaryButtonClick={handlePrimaryButtonClick}
+                    handleAddToFavorites={handleAddToFavorites}
+                    product={selectedProduct}
+                />
+            )}
         </div>
     );
 };

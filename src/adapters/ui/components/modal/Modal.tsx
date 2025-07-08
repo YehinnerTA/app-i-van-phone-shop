@@ -1,75 +1,74 @@
 import React from 'react';
 import './Modal.css';
+import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
 
 interface ModalProps {
     isModalOpen: boolean;
     handleModalOverlayClick: (event: React.MouseEvent) => void;
-    handleModalContentClick: (event: React.MouseEvent) => void;
     handleCloseClick: () => void;
     handlePrimaryButtonClick: () => void;
-    handleSecondaryButtonClick: () => void;
+    handleAddToFavorites: () => void;
+    product: ProductRegisterDto | null;
 }
 
 const Modal: React.FC<ModalProps> = ({
     isModalOpen,
     handleModalOverlayClick,
-    handleModalContentClick,
     handleCloseClick,
+    handleAddToFavorites,
     handlePrimaryButtonClick,
-    handleSecondaryButtonClick,
+    product,
 }) => {
-    if (!isModalOpen) return null;
+    if (!isModalOpen || !product) return null;
 
     return (
         <div className="modal-overlay active" onClick={handleModalOverlayClick}>
-            <div className="modal-content" onClick={handleModalContentClick}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
                 <button className="modal-close" onClick={handleCloseClick}>&times;</button>
 
                 <div className="badge">NUEVO</div>
 
-                <img className="modal-product-image" src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop&crop=center" alt="Smartphone X" />
+                <img className="modal-product-image" src={product.image} alt={product.name} />
 
-                <h2 className="modal-product-title">Smartphone X</h2>
-                <p className="modal-product-price">$499.99</p>
+                <h2 className="modal-product-title">{product.name}</h2>
+                <p className="modal-product-price">s/{product.price}</p>
 
-                <div className="modal-product-description">
-                    El Smartphone X representa la última innovación en tecnología móvil. Con un diseño elegante y características avanzadas, este dispositivo ofrece una experiencia excepcional para usuarios exigentes. Su pantalla de alta resolución y procesador de última generación garantizan un rendimiento superior en todas las tareas.
-                </div>
+                <div className="modal-product-description">{product.description}</div>
 
                 <div className="modal-product-specs">
                     <h4 className='product-spect-item'>Especificaciones Técnicas</h4>
                     <div className="spec-item">
                         <span className="spec-label">Pantalla:</span>
-                        <span className="spec-value">6.5" OLED Super Retina</span>
+                        <span className="spec-value">{product.screen || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Procesador:</span>
-                        <span className="spec-value">A16 Bionic Chip</span>
+                        <span className="spec-value">{product.processor || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Memoria:</span>
-                        <span className="spec-value">128GB / 256GB / 512GB</span>
+                        <span className="spec-value">{product.memory || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Cámara:</span>
-                        <span className="spec-value">48MP Triple Lente</span>
+                        <span className="spec-value">{product.camera || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Batería:</span>
-                        <span className="spec-value">4500mAh</span>
+                        <span className="spec-value">{product.battery || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Sistema:</span>
-                        <span className="spec-value">iOS 17</span>
+                        <span className="spec-value">{product.system || 'No disponible'}</span>
                     </div>
                     <div className="spec-item">
                         <span className="spec-label">Conectividad:</span>
-                        <span className="spec-value">5G, WiFi 6, Bluetooth 5.3</span>
+                        <span className="spec-value">{product.connectivity || 'No disponible'}</span>
                     </div>
                 </div>
 
                 <div className="modal-buttons">
-                    <button className="modal-button secondary" onClick={handleSecondaryButtonClick}>Añadir a Favoritos</button>
+                    <button className="modal-button secondary" onClick={handleAddToFavorites}>{product.featured ? 'Quitar de Favoritos' : 'Añadir a Favoritos'}</button>
                     <button className="modal-button primary" onClick={handlePrimaryButtonClick}>Comprar Ahora</button>
                 </div>
             </div>

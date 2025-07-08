@@ -6,20 +6,21 @@ import { useHome } from "../../../../hook/users/useHome";
 
 const Home_LandingPage: React.FC = () => {
     const {
-        isModalOpen,
-        handleProductClick,
-        handleModalOverlayClick,
-        handleModalContentClick,
-        handleCloseClick,
-        handlePrimaryButtonClick,
-        handleSecondaryButtonClick,
-    } = useModal();
-
-    const {
         searchTerm,
         setSearchTerm,
         filteredProducts,
+        fetchProducts,
     } = useHome();
+
+    const {
+        isModalOpen,
+        selectedProduct,
+        handleProductClick,
+        handleModalOverlayClick,
+        handleCloseClick,
+        handlePrimaryButtonClick,
+        handleAddToFavorites,
+    } = useModal({ fetchProducts });
 
     return (
         <div className="home-landing">
@@ -82,23 +83,24 @@ const Home_LandingPage: React.FC = () => {
                 <div className="section-title-home">Productos Destacados</div>
                 <div className="products-grid">
                     {filteredProducts.map((product, index) => (
-                        <div className="product-card" key={index} onClick={handleProductClick}>
-                            <img src={product.image} alt="product-image" className="product-image" />
+                        <div className="product-card" key={index} onClick={() => handleProductClick(product)}>
+                            <img src={product.image} alt={product.name} className="product-image" />
                             <div className="product-name">{product.name}</div>
-                            <div className="product-price">{product.price}<span className="product-old-price">{product.oldPrice}</span></div>
+                            {/* <div className="product-price">{product.price}<span className="product-old-price">{product.oldPrice}</span></div> */}
                         </div>
                     ))}
                 </div>
             </div>
-
-            <Modal
-                isModalOpen={isModalOpen}
-                handleModalOverlayClick={handleModalOverlayClick}
-                handleModalContentClick={handleModalContentClick}
-                handleCloseClick={handleCloseClick}
-                handlePrimaryButtonClick={handlePrimaryButtonClick}
-                handleSecondaryButtonClick={handleSecondaryButtonClick}
-            />
+            {selectedProduct && (
+                <Modal
+                    isModalOpen={isModalOpen}
+                    handleModalOverlayClick={handleModalOverlayClick}
+                    handleCloseClick={handleCloseClick}
+                    handlePrimaryButtonClick={handlePrimaryButtonClick}
+                    handleAddToFavorites={handleAddToFavorites}
+                    product={selectedProduct}
+                />
+            )}
         </div>
     );
 };

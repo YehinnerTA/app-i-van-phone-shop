@@ -1,7 +1,18 @@
 import { useState, useCallback } from 'react';
+import { ProductRegisterDto } from '../../../application/dtos/ProductRegisterDto';
+import { updateProductUseCase } from '../../../application/useCases/RegisterProductUseCase';
 
-export const useModal = () => {
+interface ProductWithId extends ProductRegisterDto {
+    id: string;
+}
+
+interface UseModalProps {
+    fetchProducts: () => Promise<void>;
+}
+
+export const useModal = ({ fetchProducts }: UseModalProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<ProductWithId | null>(null);
 
     const openModal = useCallback(() => {
         setIsModalOpen(true);
@@ -10,10 +21,12 @@ export const useModal = () => {
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false);
+        setSelectedProduct(null);
         document.body.style.overflow = 'auto';
     }, []);
 
-    const handleProductClick = useCallback(() => {
+    const handleProductClick = useCallback((product: ProductWithId) => {
+        setSelectedProduct(product);
         openModal();
     }, [openModal]);
 
@@ -28,10 +41,6 @@ export const useModal = () => {
         }
     }, [closeModal]);
 
-    const handleModalContentClick = useCallback((event: React.MouseEvent) => {
-        event.stopPropagation();
-    }, []);
-
     const handleCloseClick = useCallback(() => {
         closeModal();
     }, [closeModal]);
@@ -41,18 +50,34 @@ export const useModal = () => {
         closeModal();
     }, [closeModal]);
 
-    const handleSecondaryButtonClick = useCallback(() => {
-        alert('¡Producto añadido a favoritos!');
-    }, []);
+    const handleAddToFavorites = useCallback(async () => {
+        if (selectedProduct?.id) {
+            try {
+                const updatedFeatured = !selectedProduct.featured;
+                await updateProductUseCase(selectedProduct.id, {
+                    featured: updatedFeatured,
+                });
+                await fetchProducts();
+                alert(
+                    updatedFeatured
+                        ? 'Producto añadido a destacados'
+                        : 'Producto quitado de destacados'
+                );
+            } catch (error) {
+                console.error('Error al actualizar favoritos:', error);
+                alert('Ocurrió un error al actualizar el estado de favoritos');
+            }
+        }
+    }, [selectedProduct, fetchProducts]);
 
     return {
         isModalOpen,
+        selectedProduct,
         handleProductClick,
         handleBuyClick,
         handleModalOverlayClick,
-        handleModalContentClick,
         handleCloseClick,
         handlePrimaryButtonClick,
-        handleSecondaryButtonClick,
+        handleAddToFavorites,
     };
 };

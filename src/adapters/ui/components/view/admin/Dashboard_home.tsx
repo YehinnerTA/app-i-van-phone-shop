@@ -84,7 +84,7 @@ const Dashboard_Home: React.FC = () => {
                     </div>
 
                     <div className='statistics-diagram-BI'>
-                        <h3 className='title-diagram-statistics'>Ventas de la Semana</h3>
+                        <h3 className='title-diagram-statistics'>Productos más vendidos</h3>
                         <ResponsiveContainer>
                             <BarChart data={weeklyData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

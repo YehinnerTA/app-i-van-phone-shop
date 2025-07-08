@@ -1,48 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { app_DB } from "../../../../domain/services/firebaseConfig";
+import { ProductRegisterDto } from "../../../../application/dtos/ProductRegisterDto";
 
-export interface Product {
-    name: string;
-    price: string;
-    oldPrice: string;
-    image: string;
+interface ProductWithId extends ProductRegisterDto {
+    id: string;
 }
 
 export const useHome = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [products] = useState<Product[]>([
-        {
-            name: "iPhone 15 Pro",
-            price: "$999",
-            oldPrice: "$1,199",
-            image: "src/assets/images/apple-iphone13.png"
-        },
-        {
-            name: "Samsung Galaxy S24",
-            price: "$849",
-            oldPrice: "$999",
-            image: "src/assets/images/apple-iphone13.png"
-        },
-        {
-            name: "Xiaomi 14 Ultra",
-            price: "$649",
-            oldPrice: "$799",
-            image: "src/assets/images/apple-iphone13.png"
-        },
-        {
-            name: "OnePlus 12",
-            price: "$599",
-            oldPrice: "$699",
-            image: "src/assets/images/apple-iphone13.png"
+    const [products, setProducts] = useState<ProductWithId[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchProducts = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(app_DB, "products"));
+            const fetchedProducts: ProductWithId[] = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+
+                fetchedProducts.push({
+                    id: doc.id,
+                    name: data.name,
+                    price: data.price,
+                    // oldPrice: data.oldPrice || "",
+                    image: data.image || "src/assets/default-product.png",
+                    category: data.category,
+                    stock: data.stock,
+                    description: data.description,
+                    dateAdded: data.dateAdded,
+                    sku: data.sku || "",
+                    status: data.status || "active",
+                    featured: data.featured || false,
+                });
+            });
+
+            setProducts(fetchedProducts);
+        } catch (error) {
+            console.error("Error fetching products from Firestore:", error);
+        } finally {
+            setLoading(false);
         }
-    ]);
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     const filteredProducts = products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const filteredFeaturedProducts = products.filter(product => product.featured);
+
     return {
         searchTerm,
         setSearchTerm,
-        filteredProducts
+        filteredProducts,
+        filteredFeaturedProducts,
+        fetchProducts,
+        loading,
     };
 };

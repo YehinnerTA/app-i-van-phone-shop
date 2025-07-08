@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
+import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
+import { app_DB } from '../../../../domain/services/firebaseConfig';
+import { collection, getDocs } from 'firebase/firestore';
 
-type Product = {
-    title: string;
-    price: string;
-    img: string;
+export interface ProductWithId extends ProductRegisterDto {
+    id: string;
 }
 
 export const useCatalogProduct = () => {
+    const [products, setProducts] = useState<ProductWithId[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [activeCategory, setActiveCategory] = useState<'Celulares' | 'Accesorios' | 'Otros'>('Celulares');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchTermFeatured, setSearchTermFeatured] = useState('');
+
+    const fetchProducts = async () => {
+        const snapshot = await getDocs(collection(app_DB, 'products'));
+        const fetchedProducts: ProductWithId[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...(doc.data() as ProductRegisterDto),
+        }));
+        setProducts(fetchedProducts);
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -30,53 +45,28 @@ export const useCatalogProduct = () => {
         alert('Funcionalidad de compra - Aquí iría la lógica de compra');
     };
 
-    const products: Record<typeof activeCategory, Product[]> = {
-        Celulares: [
-            { title: "Smartphone X", price: "$499.99", img: "/src/assets/images/apple-iphone13.png" },
-            { title: "Smartphone Y", price: "$599.99", img: "/src/assets/images/apple-iphone13.png" },
-            { title: "Headphones Z", price: "$199.99", img: "/src/assets/images/apple-iphone13.png" },
-        ],
-        Accesorios: [
-            { title: "Audifonos", price: "$249.99", img: "/src/assets/images/audifonos.jpeg" },
-            { title: "Cargador", price: "$29.99", img: "/src/assets/images/audifonos.jpeg" },
-            { title: "Cable", price: "$19.99", img: "/src/assets/images/audifonos.jpeg" },
-        ],
-        Otros: [
-            { title: "Carca celular", price: "$299.99", img: "/src/assets/images/funda.jpeg" },
-            { title: "Mica", price: "$399.99", img: "/src/assets/images/funda.jpeg" },
-            { title: "Splash", price: "$149.99", img: "/src/assets/images/funda.jpeg" },
-        ],
-    };
+    const filteredProducts = products
+        .filter(p => p.category.toLowerCase() === activeCategory.toLowerCase())
+        .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const featuredProducts: Product[] = [
-        { title: "iPhone 13", price: "$799", img: "/src/assets/images/apple-iphone13.png" },
-        { title: "iPhone 14", price: "$899", img: "/src/assets/images/apple-iphone13.png" },
-        { title: "iPhone 15", price: "$999", img: "/src/assets/images/apple-iphone13.png" },
-    ];
 
-    const filteredProducts = products[activeCategory].filter(product =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const filteredFeaturedProducts = featuredProducts.filter(product =>
-        product.title.toLowerCase().includes(searchTermFeatured.toLowerCase())
-    );
+    const filteredFeaturedProducts = products
+        .filter(product => product.featured)
+        .filter(product =>
+            product.name.toLowerCase().includes(searchTermFeatured.toLowerCase())
+        );
 
     return {
-        // Generales
         currentIndex,
         activeCategory,
         handleCategoryClick,
         handleBuyClick,
-
-        // Productos normales
         searchTerm,
         setSearchTerm,
         filteredProducts,
-
-        // Productos destacados
         searchTermFeatured,
         setSearchTermFeatured,
-        filteredFeaturedProducts
+        filteredFeaturedProducts,
+        fetchProducts,
     };
 };

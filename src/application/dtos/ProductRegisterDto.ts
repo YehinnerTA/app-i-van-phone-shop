@@ -9,4 +9,15 @@ export interface ProductRegisterDto {
     sku?: string;
     image?: string;
     status?: 'active' | 'inactive' | 'archived';
+
+    // Detalles Especificos
+    screen?: string;         // Pantalla
+    processor?: string;      // Procesador
+    memory?: string;         // Memoria
+    camera?: string;         // Cámara
+    battery?: string;        // Batería
+    system?: string;         // Sistema
+    connectivity?: string;   // Conectividad
+
+    featured?: boolean;
 }
