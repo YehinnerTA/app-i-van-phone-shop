@@ -110,7 +110,6 @@ const useDashboardProduct = () => {
             await addDoc(collection(app_DB, 'products'), dto);
             closeAddModal();
             setNewProduct({ name: '', category: 'celulares', price: 0, stock: 0, description: '' });
-            alert('Producto agregado exitosamente');
             fetchProducts();
         } catch (error) {
             console.error('Error al agregar producto:', error);
@@ -126,7 +125,6 @@ const useDashboardProduct = () => {
                 await deleteDoc(doc(app_DB, 'products', selectedProduct.id));
                 setProducts(products.filter(p => p.id !== selectedProduct.id));
                 closeDeleteModal();
-                alert('Producto eliminado exitosamente');
             } catch (error) {
                 console.error('Error al eliminar producto:', error);
                 alert('Error al eliminar el producto');
