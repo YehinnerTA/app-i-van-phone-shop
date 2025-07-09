@@ -14,7 +14,8 @@ const Payment_LandingPage: React.FC = () => {
         setPaymentMethod,
         paymentFields,
         handleInputChange,
-        handleCheckout,
+        handleCheckoutLogin,
+        isProcessing,
     } = usePayment();
 
     return (
@@ -123,7 +124,7 @@ const Payment_LandingPage: React.FC = () => {
 
                     {paymentMethod === 'cash' && (
                         <div className="payment-form">
-                            <input type="text" name="fullName" placeholder="Nombre completo" className="payment-input" value={paymentFields.fullName || ''} onChange={handleInputChange} />
+                            <input type="text" name="fullName" placeholder="Codigo de Validación" className="payment-input" value={paymentFields.fullName || ''} onChange={handleInputChange} />
                         </div>
                     )}
                 </div>
@@ -147,7 +148,7 @@ const Payment_LandingPage: React.FC = () => {
                 </div>
 
                 <div className="payment-checkout">
-                    <button className="btn-checkout" onClick={handleCheckout}>Finalizar Compra</button>
+                    <button className="btn-checkout" onClick={handleCheckoutLogin} disabled={isProcessing}>{isProcessing ? 'Procesando...' : 'Finalizar Compra'}</button>
                     <p className="checkout-text">Garantía de 30 días</p>
                 </div>
             </div>

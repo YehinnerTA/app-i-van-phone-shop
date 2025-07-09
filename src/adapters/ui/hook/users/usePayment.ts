@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
-import { app_DB } from '../../../../domain/services/firebaseConfig';
+import { app_DB, app_auth } from '../../../../domain/services/firebaseConfig';
 import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
+import { registerOrderUseCase } from '../../../../application/useCases/RegisterOrderUseCase';
+import { OrderRegisterDto } from '../../../../application/dtos/OrderRegisterDto';
 
 interface ProductWithId extends ProductRegisterDto {
     id: string;
@@ -13,9 +15,9 @@ type PaymentMethod = 'credit-card' | 'yape' | 'cash' | '';
 export const usePayment = () => {
     const [products, setProducts] = useState<ProductWithId[]>([]);
     const [currentDiscount, setCurrentDiscount] = useState(0);
-
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
     const [paymentFields, setPaymentFields] = useState<Record<string, string>>({});
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const fetchBuyProducts = async () => {
         const q = query(collection(app_DB, 'products'), where('buy', '==', true));
@@ -64,9 +66,12 @@ export const usePayment = () => {
 
         return {
             productCount: `${products.length} producto${products.length !== 1 ? 's' : ''}`,
-            subtotal: `S/.${subtotal.toLocaleString()}`,
-            discount: `S/.${discountAmount.toLocaleString()}`,
-            total: `S/.${total.toFixed(2)}`,
+            subtotalFormatted: `S/.${subtotal.toLocaleString()}`,
+            discountFormatted: `S/.${discountAmount.toLocaleString()}`,
+            totalFormatted: `S/.${total.toFixed(2)}`,
+            subtotal,
+            discount: discountAmount,
+            total,
             quantityDisplay: products.reduce((sum, p) => sum + (p.quantity || 1), 0),
             itemPrice: `S/.${subtotal.toLocaleString()}`,
         };
@@ -93,7 +98,7 @@ export const usePayment = () => {
 
     const handlePaymentMethodChange = (method: PaymentMethod) => {
         setPaymentMethod(method);
-        setPaymentFields({}); // Reinicia campos cuando cambia método
+        setPaymentFields({});
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,30 +106,91 @@ export const usePayment = () => {
         setPaymentFields(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCheckout = () => {
-        if (!paymentMethod) {
-            alert('Por favor, selecciona un método de pago');
+    const handleCheckoutLogin = async () => {
+        const user = app_auth.currentUser;
+        if (!user) {
+            alert('Debes iniciar sesión para finalizar tu compra.');
             return;
         }
 
-        // Validaciones específicas según método
+        if (!paymentMethod) {
+            alert('Por favor, selecciona un método de pago.');
+            return;
+        }
+
         if (paymentMethod === 'credit-card') {
-            const { cardNumber, cardName, cardExpiry, cardCVC } = paymentFields;
-            if (!cardNumber || !cardName || !cardExpiry || !cardCVC) {
-                alert('Por favor, completa todos los campos de la tarjeta');
+            const { cardNumber, expiration, cvv } = paymentFields;
+            if (!cardNumber || !expiration || !cvv) {
+                alert('Por favor, completa todos los campos de la tarjeta.');
                 return;
             }
         }
 
-        if (paymentMethod === 'yape' && !paymentFields.yapePhone) {
-            alert('Por favor, ingresa tu número de Yape');
-            return;
+        if (paymentMethod === 'yape') {
+            const { phone } = paymentFields;
+            if (!phone) {
+                alert('Por favor, ingresa tu número de Yape.');
+                return;
+            }
         }
 
-        // Simulación de éxito
-        alert('Compra finalizada con éxito ✅');
-        // Aquí podrías agregar la lógica para registrar el pedido
+        if (paymentMethod === 'cash') {
+            const { fullName } = paymentFields;
+            if (!fullName || fullName.trim() !== 'CompraEfectivo') {
+                alert('Para pago en efectivo, debes ingresar el código exacto brindado por el vendedor');
+                return;
+            }
+            alert('✅ Pago en efectivo validado');
+        }
+
+        const orderData: OrderRegisterDto = {
+            userId: user.uid,
+            userEmail: user.email || '',
+            products: products.map(p => ({
+                productId: p.id,
+                name: p.name,
+                image: p.image,
+                category: p.category,
+                memory: p.memory,
+                quantity: p.quantity,
+                price: p.price,
+                totalPrice: p.price * p.quantity,
+            })),
+            subtotal: priceData.subtotal,
+            discount: priceData.discount,
+            total: priceData.total,
+            paymentMethod,
+            paymentDetails: {
+                ...(paymentMethod === 'credit-card' && {
+                    cardNumber: paymentFields.cardNumber,
+                    expiration: paymentFields.expiration,
+                    cvv: paymentFields.cvv,
+                }),
+                ...(paymentMethod === 'yape' && {
+                    phone: paymentFields.phone,
+                }),
+                ...(paymentMethod === 'cash' && {
+                    fullName: paymentFields.fullName,
+                }),
+            },
+        };
+
+        setIsProcessing(true);
+        try {
+            const orderId = await registerOrderUseCase(orderData);
+            console.log(`Pedido registrado con ID: ${orderId}`);
+            setProducts([]);
+            setPaymentMethod('');
+            setPaymentFields({});
+            setCurrentDiscount(0);
+            alert('✅ Tu pedido ha sido registrado con éxito');
+        } catch (error) {
+            console.error('Error al registrar el pedido:', error);
+        } finally {
+            setIsProcessing(false);
+        }
     };
+
 
     return {
         products,
@@ -138,6 +204,7 @@ export const usePayment = () => {
         setPaymentMethod: handlePaymentMethodChange,
         paymentFields,
         handleInputChange,
-        handleCheckout,
+        handleCheckoutLogin,
+        isProcessing,
     };
 };
