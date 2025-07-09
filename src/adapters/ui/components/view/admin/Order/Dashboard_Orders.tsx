@@ -144,9 +144,7 @@ const Dashboard_Orders: React.FC = () => {
 
                 <div className="dashboard-orders-status-badges">
                   <span className={`dashboard-orders-badge ${pedido.estado === 'completado' ? 'dashboard-orders-badge-completed' :
-                    pedido.estado === 'espera' ? 'dashboard-orders-badge-pending' :
-                      'dashboard-orders-badge-processing'
-                    }`}>
+                    pedido.estado === 'espera' ? 'dashboard-orders-badge-pending' : 'dashboard-orders-badge-processing'}`}>
                     {pedido.estado === 'completado' ? 'Completado' :
                       pedido.estado === 'espera' ? 'En Espera' :
                         'Procesando'}

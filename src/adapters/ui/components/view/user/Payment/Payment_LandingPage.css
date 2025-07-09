@@ -313,3 +313,13 @@
     text-Align: 'center';
     margin-Top: '2rem';
 }
+
+.payment-input {
+    width: 100%;
+    display: block;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}

@@ -10,6 +10,11 @@ const Payment_LandingPage: React.FC = () => {
         applyDiscount,
         increaseQuantity,
         decreaseQuantity,
+        paymentMethod,
+        setPaymentMethod,
+        paymentFields,
+        handleInputChange,
+        handleCheckout,
     } = usePayment();
 
     return (
@@ -66,20 +71,61 @@ const Payment_LandingPage: React.FC = () => {
                 <div className="payment-card" title="payment-options">
                     <h2 className="title-payment">Método de Pago</h2>
                     <label className="payment-label">
-                        <input type="radio" name="payment" className="payment-radio" value="credit-card" />
+                        <input
+                            type="radio"
+                            name="payment"
+                            className="payment-radio"
+                            value="credit-card"
+                            checked={paymentMethod === 'credit-card'}
+                            onChange={() => setPaymentMethod('credit-card')}
+                        />
                         <img src="src/assets/icons/tarjeta-credito.svg" alt="tarjeta-credito" className="img-option" />
                         Tarjeta de Crédito
                     </label>
                     <label className="payment-label">
-                        <input type="radio" name="payment" className="payment-radio" value="paypal" />
-                        <img src="src/assets/icons/yape.svg" alt="paypal" className="img-option" />
+                        <input
+                            type="radio"
+                            name="payment"
+                            className="payment-radio"
+                            value="yape"
+                            checked={paymentMethod === 'yape'}
+                            onChange={() => setPaymentMethod('yape')}
+                        />
+                        <img src="src/assets/icons/yape.svg" alt="yape" className="img-option" />
                         Yape
                     </label>
                     <label className="payment-label">
-                        <input type="radio" name="payment" className="payment-radio" value="paypal" />
-                        <img src="src/assets/icons/efectivo.svg" alt="paypal" className="img-option" />
+                        <input
+                            type="radio"
+                            name="payment"
+                            className="payment-radio"
+                            value="cash"
+                            checked={paymentMethod === 'cash'}
+                            onChange={() => setPaymentMethod('cash')}
+                        />
+                        <img src="src/assets/icons/efectivo.svg" alt="efectivo" className="img-option" />
                         Efectivo
                     </label>
+
+                    {paymentMethod === 'credit-card' && (
+                        <div className="payment-form">
+                            <input type="text" name="cardNumber" placeholder="Número de Tarjeta" className="payment-input" value={paymentFields.cardNumber || ''} onChange={handleInputChange} />
+                            <input type="text" name="expiration" placeholder="Fecha de Expiración (MM/AA)" className="payment-input" value={paymentFields.expiration || ''} onChange={handleInputChange} />
+                            <input type="text" name="cvv" placeholder="CVV" className="payment-input" value={paymentFields.cvv || ''} onChange={handleInputChange} />
+                        </div>
+                    )}
+
+                    {paymentMethod === 'yape' && (
+                        <div className="payment-form">
+                            <input type="text" name="phone" placeholder="Número de celular asociado a Yape" className="payment-input" value={paymentFields.phone || ''} onChange={handleInputChange} />
+                        </div>
+                    )}
+
+                    {paymentMethod === 'cash' && (
+                        <div className="payment-form">
+                            <input type="text" name="fullName" placeholder="Nombre completo" className="payment-input" value={paymentFields.fullName || ''} onChange={handleInputChange} />
+                        </div>
+                    )}
                 </div>
 
                 <div className="payment-card" title="payment-summary">
@@ -101,7 +147,7 @@ const Payment_LandingPage: React.FC = () => {
                 </div>
 
                 <div className="payment-checkout">
-                    <button className="btn-checkout">Finalizar Compra</button>
+                    <button className="btn-checkout" onClick={handleCheckout}>Finalizar Compra</button>
                     <p className="checkout-text">Garantía de 30 días</p>
                 </div>
             </div>

@@ -8,9 +8,14 @@ interface ProductWithId extends ProductRegisterDto {
     quantity: number;
 }
 
+type PaymentMethod = 'credit-card' | 'yape' | 'cash' | '';
+
 export const usePayment = () => {
     const [products, setProducts] = useState<ProductWithId[]>([]);
     const [currentDiscount, setCurrentDiscount] = useState(0);
+
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
+    const [paymentFields, setPaymentFields] = useState<Record<string, string>>({});
 
     const fetchBuyProducts = async () => {
         const q = query(collection(app_DB, 'products'), where('buy', '==', true));
@@ -86,6 +91,41 @@ export const usePayment = () => {
         }
     };
 
+    const handlePaymentMethodChange = (method: PaymentMethod) => {
+        setPaymentMethod(method);
+        setPaymentFields({}); // Reinicia campos cuando cambia método
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPaymentFields(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCheckout = () => {
+        if (!paymentMethod) {
+            alert('Por favor, selecciona un método de pago');
+            return;
+        }
+
+        // Validaciones específicas según método
+        if (paymentMethod === 'credit-card') {
+            const { cardNumber, cardName, cardExpiry, cardCVC } = paymentFields;
+            if (!cardNumber || !cardName || !cardExpiry || !cardCVC) {
+                alert('Por favor, completa todos los campos de la tarjeta');
+                return;
+            }
+        }
+
+        if (paymentMethod === 'yape' && !paymentFields.yapePhone) {
+            alert('Por favor, ingresa tu número de Yape');
+            return;
+        }
+
+        // Simulación de éxito
+        alert('Compra finalizada con éxito ✅');
+        // Aquí podrías agregar la lógica para registrar el pedido
+    };
+
     return {
         products,
         priceData,
@@ -94,5 +134,10 @@ export const usePayment = () => {
         decreaseQuantity,
         removeItem,
         refetch: fetchBuyProducts,
+        paymentMethod,
+        setPaymentMethod: handlePaymentMethodChange,
+        paymentFields,
+        handleInputChange,
+        handleCheckout,
     };
 };
