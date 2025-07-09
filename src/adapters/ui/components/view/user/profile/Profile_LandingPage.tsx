@@ -6,7 +6,7 @@ const Profile_LandingPage: React.FC = () => {
     const {
         userData,
         passwordData,
-        isLoading,
+        loading,
         showPasswordModal,
         showPasswords,
         generateInitials,
@@ -22,6 +22,8 @@ const Profile_LandingPage: React.FC = () => {
         closePasswordModal,
         passwordErrors,
     } = useProfile();
+
+    if (!userData) return null;
 
     return (
         <div className="profile-container">
@@ -210,7 +212,7 @@ const Profile_LandingPage: React.FC = () => {
                 <button
                     className="btn-profile btn-primary-profile"
                     onClick={saveProfile}
-                    disabled={isLoading}
+                    disabled={loading}
                 >
                     {getSaveButtonText()}
                 </button>
@@ -315,9 +317,9 @@ const Profile_LandingPage: React.FC = () => {
                                 <button
                                     type="submit"
                                     className="btn-profile btn-primary-profile"
-                                    disabled={isLoading}
+                                    disabled={loading}
                                 >
-                                    {isLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                                    {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
                                 </button>
                             </div>
                         </form>

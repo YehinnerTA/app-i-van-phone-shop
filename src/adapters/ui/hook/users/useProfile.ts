@@ -22,14 +22,14 @@ export const formatDateOnly = (value: unknown): string => {
 };
 
 export const useProfile = () => {
-    const [userData, setUserData] = useState<Partial<User>>({});
+    const [userData, setUserData] = useState<Partial<User> | null>(null);
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: "",
         confirmPassword: ""
     });
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
@@ -63,8 +63,9 @@ export const useProfile = () => {
 
     const saveProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        if (!uid) return;
-        setIsLoading(true);
+        if (!uid || !userData) return;
+
+        setLoading(true);
         setSaveStatus('saving');
 
         try {
@@ -75,7 +76,7 @@ export const useProfile = () => {
             console.error('Error al guardar perfil: ', error);
             setSaveStatus('idle');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
@@ -100,7 +101,7 @@ export const useProfile = () => {
             return;
         }
 
-        setIsLoading(true);
+        setLoading(true);
         const auth = getAuth();
         const user = auth.currentUser;
 
@@ -125,11 +126,11 @@ export const useProfile = () => {
                     setPasswordErrors(["Error al cambiar la contraseña."]);
                 }
             } finally {
-                setIsLoading(false);
+                setLoading(false);
             }
         } else {
             setPasswordErrors(["No se encontró el usuario actual."]);
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
@@ -217,7 +218,9 @@ export const useProfile = () => {
                         lastAccess
                     });
                 }
+                setLoading(false);
             } else {
+                setLoading(false);
                 history.push("/login");
             }
         });
@@ -241,8 +244,8 @@ export const useProfile = () => {
 
     return {
         userData,
+        loading,
         passwordData,
-        isLoading,
         showPasswordModal,
         showPasswords,
         generateInitials,

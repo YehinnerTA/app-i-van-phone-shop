@@ -1,9 +1,12 @@
 import { useEffect, useState, useMemo } from 'react';
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
-import { app_DB, app_auth } from '../../../../domain/services/firebaseConfig';
+import { app_DB } from '../../../../domain/services/firebaseConfig';
 import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
 import { registerOrderUseCase } from '../../../../application/useCases/RegisterOrderUseCase';
 import { OrderRegisterDto } from '../../../../application/dtos/OrderRegisterDto';
+import { User } from '../../../../domain/entities/User';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getUserProfile } from '../../../../domain/services/firebaseUserService';
 
 interface ProductWithId extends ProductRegisterDto {
     id: string;
@@ -13,11 +16,45 @@ interface ProductWithId extends ProductRegisterDto {
 type PaymentMethod = 'credit-card' | 'yape' | 'cash' | '';
 
 export const usePayment = () => {
+    function removeUndefined<T>(obj: T): T {
+        if (Array.isArray(obj)) {
+            return obj.map(item => removeUndefined(item)) as T;
+        } else if (typeof obj === 'object' && obj !== null) {
+            return Object.fromEntries(
+                Object.entries(obj)
+                    .filter(([, value]) => value !== undefined)
+                    .map(([key, value]) => [key, removeUndefined(value)])
+            ) as T;
+        }
+        return obj;
+    }
+
+    const [userData, setUserData] = useState<Partial<User> | null>(null);
     const [products, setProducts] = useState<ProductWithId[]>([]);
     const [currentDiscount, setCurrentDiscount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
     const [paymentFields, setPaymentFields] = useState<Record<string, string>>({});
     const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const profile = await getUserProfile(user.uid);
+                const lastAccess = user.metadata.lastSignInTime || '';
+
+                if (profile) {
+                    setUserData({
+                        ...profile,
+                        uid: user.uid,
+                        lastAccess
+                    });
+                }
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const fetchBuyProducts = async () => {
         const q = query(collection(app_DB, 'products'), where('buy', '==', true));
@@ -107,12 +144,11 @@ export const usePayment = () => {
     };
 
     const handleCheckoutLogin = async () => {
-        const user = app_auth.currentUser;
-        if (!user) {
-            alert('Debes iniciar sesión para finalizar tu compra.');
+        if (!userData || !userData.uid || !userData.email) {
+            alert('Debes iniciar sesión para finalizar la compra.');
             return;
         }
-
+        console.log('👉 handleCheckoutLogin ejecutado');
         if (!paymentMethod) {
             alert('Por favor, selecciona un método de pago.');
             return;
@@ -144,8 +180,8 @@ export const usePayment = () => {
         }
 
         const orderData: OrderRegisterDto = {
-            userId: user.uid,
-            userEmail: user.email || '',
+            userId: userData.uid,
+            userEmail: userData.email || '',
             products: products.map(p => ({
                 productId: p.id,
                 name: p.name,
@@ -177,8 +213,12 @@ export const usePayment = () => {
 
         setIsProcessing(true);
         try {
-            const orderId = await registerOrderUseCase(orderData);
+            const cleanedOrderData = removeUndefined(orderData);
+            const orderId = await registerOrderUseCase(cleanedOrderData);
             console.log(`Pedido registrado con ID: ${orderId}`);
+            for (const product of products) {
+                await updateDoc(doc(app_DB, 'products', product.id), { buy: false });
+            }
             setProducts([]);
             setPaymentMethod('');
             setPaymentFields({});
@@ -206,5 +246,6 @@ export const usePayment = () => {
         handleInputChange,
         handleCheckoutLogin,
         isProcessing,
+        userData,
     };
 };

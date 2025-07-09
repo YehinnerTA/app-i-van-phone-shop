@@ -16,6 +16,7 @@ const Payment_LandingPage: React.FC = () => {
         handleInputChange,
         handleCheckoutLogin,
         isProcessing,
+        userData,
     } = usePayment();
 
     return (
@@ -149,7 +150,7 @@ const Payment_LandingPage: React.FC = () => {
 
                 <div className="payment-checkout">
                     <button className="btn-checkout" onClick={handleCheckoutLogin} disabled={isProcessing}>{isProcessing ? 'Procesando...' : 'Finalizar Compra'}</button>
-                    <p className="checkout-text">Garantía de 30 días</p>
+                    <p className="checkout-text">Garantía de 30 días para {userData?.email || '[correo no disponible]'}</p>
                 </div>
             </div>
         </div>

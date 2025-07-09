@@ -1,13 +1,18 @@
 import { OrderRegisterDto } from "../dtos/OrderRegisterDto";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { app_DB } from "../../domain/services/firebaseConfig";
 
 export const registerOrderUseCase = async (orderData: OrderRegisterDto): Promise<string> => {
-    const orderWithMeta = {
-        ...orderData,
-        createdAt: Timestamp.now().toDate().toISOString(),
-    };
-
-    const docRef = await addDoc(collection(app_DB, 'orders'), orderWithMeta);
-    return docRef.id;
-}
+    try {
+        const ordersCollection = collection(app_DB, 'orders');
+        const docRef = await addDoc(ordersCollection, {
+            ...orderData,
+            createdAt: new Date().toISOString(),
+            status: 'pending',
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error al registrar el pedido en Firestore:', error);
+        throw error;
+    }
+};
