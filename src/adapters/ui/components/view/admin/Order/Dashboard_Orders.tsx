@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard_Orders.css';
-import useDashboardOrders from '../../../../hook/admin/useDashboardOrders';
+import { useDashboardOrders } from '../../../../hook/admin/useDashboardOrders';
 
 const Dashboard_Orders: React.FC = () => {
   const {
@@ -116,24 +116,24 @@ const Dashboard_Orders: React.FC = () => {
             <div key={pedido.id} className="dashboard-orders-order-card">
               <div className="dashboard-orders-order-header">
                 <div className="dashboard-orders-order-id">#{pedido.id}</div>
-                <div className="dashboard-orders-order-date">{pedido.fecha}</div>
+                <div className="dashboard-orders-order-date">{new Date(pedido.createdAt).toLocaleDateString()}</div>
               </div>
               <div className="dashboard-orders-order-body">
                 <div className="dashboard-orders-customer-info">
-                  <div className="dashboard-orders-customer-name">{pedido.cliente.nombre}</div>
+                  <div className="dashboard-orders-customer-name">{pedido.userEmail}</div>
                   <div className="dashboard-orders-customer-contact">
-                    📞 {pedido.cliente.telefono} | 📧 {pedido.cliente.email}
+                    📞 {pedido.userId} | 📧 {pedido.userEmail}
                   </div>
                 </div>
 
                 <div className="dashboard-orders-products-list">
-                  {pedido.productos.map(producto => (
-                    <div key={`${pedido.id}-${producto.id}`} className="dashboard-orders-product-item">
+                  {pedido.products.map((producto, index) => (
+                    <div key={`${pedido.id}-${producto.productId}-${index}`} className="dashboard-orders-product-item">
                       <div>
                         <div className="dashboard-orders-product-name">{producto.name}</div>
                         <div className="dashboard-orders-product-quantity">Cantidad: {producto.quantity}</div>
                       </div>
-                      <div className="dashboard-orders-product-price">${producto.price.toFixed(2)}</div>
+                      <div className="dashboard-orders-product-price">S/.{producto.price.toFixed(2)}</div>
                     </div>
                   ))}
                 </div>
@@ -143,15 +143,27 @@ const Dashboard_Orders: React.FC = () => {
                 </div>
 
                 <div className="dashboard-orders-status-badges">
-                  <span className={`dashboard-orders-badge ${pedido.estado === 'completado' ? 'dashboard-orders-badge-completed' :
-                    pedido.estado === 'espera' ? 'dashboard-orders-badge-pending' : 'dashboard-orders-badge-processing'}`}>
-                    {pedido.estado === 'completado' ? 'Completado' :
-                      pedido.estado === 'espera' ? 'En Espera' :
-                        'Procesando'}
-                  </span>
-                  <span className={`dashboard-orders-badge ${pedido.metodoPago === 'online' ? 'dashboard-orders-badge-online' : 'dashboard-orders-badge-cash'
+                  <span className={`dashboard-orders-badge ${pedido.status === 'completed'
+                    ? 'dashboard-orders-badge-completed'
+                    : pedido.status === 'pending'
+                      ? 'dashboard-orders-badge-pending'
+                      : 'dashboard-orders-badge-processing'
                     }`}>
-                    {pedido.metodoPago === 'online' ? 'Pago Online' : 'Efectivo'}
+                    {pedido.status === 'completed'
+                      ? 'Completado'
+                      : pedido.status === 'pending'
+                        ? 'En Espera'
+                        : 'Procesando'}
+                  </span>
+                  <span className={`dashboard-orders-badge ${pedido.paymentMethod === 'credit-card'
+                    ? 'dashboard-orders-badge-online'
+                    : 'dashboard-orders-badge-cash'
+                    }`}>
+                    {pedido.paymentMethod === 'credit-card'
+                      ? 'Tarjeta'
+                      : pedido.paymentMethod === 'yape'
+                        ? 'Yape'
+                        : 'Efectivo'}
                   </span>
                 </div>
 
@@ -168,14 +180,14 @@ const Dashboard_Orders: React.FC = () => {
                   >
                     Cambiar Estado
                   </button>
-                  {pedido.estado === 'completado' ? (
+                  {pedido.status === 'completed' ? (
                     <button
                       className="dashboard-orders-btn dashboard-orders-btn-success"
                       onClick={() => marcarEntregado(pedido.id)}
                     >
                       Marcar Entregado
                     </button>
-                  ) : pedido.pago === 'pendiente' ? (
+                  ) : pedido.paymentStatus === 'pendiente' ? (
                     <button
                       className="dashboard-orders-btn dashboard-orders-btn-success"
                       onClick={() => confirmarPago(pedido.id)}
@@ -285,16 +297,8 @@ const Dashboard_Orders: React.FC = () => {
                 <h4 className="dashboard-orders-detail-title">👤 Información del Cliente</h4>
                 <div className="dashboard-orders-detail-info">
                   <div className="dashboard-orders-detail-row">
-                    <span className="dashboard-orders-detail-label">Nombre:</span>
-                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.nombre}</span>
-                  </div>
-                  <div className="dashboard-orders-detail-row">
-                    <span className="dashboard-orders-detail-label">Teléfono:</span>
-                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.telefono}</span>
-                  </div>
-                  <div className="dashboard-orders-detail-row">
-                    <span className="dashboard-orders-detail-label">Email:</span>
-                    <span className="dashboard-orders-detail-value">{pedidoDetalle.cliente.email}</span>
+                    <span className="dashboard-orders-detail-label">Correo Electronico:</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.userEmail}</span>
                   </div>
                 </div>
               </div>
@@ -305,34 +309,34 @@ const Dashboard_Orders: React.FC = () => {
                 <div className="dashboard-orders-detail-info">
                   <div className="dashboard-orders-detail-row">
                     <span className="dashboard-orders-detail-label">Fecha:</span>
-                    <span className="dashboard-orders-detail-value">{pedidoDetalle.fecha}</span>
+                    <span className="dashboard-orders-detail-value">{pedidoDetalle.createdAt}</span>
                   </div>
                   <div className="dashboard-orders-detail-row">
                     <span className="dashboard-orders-detail-label">Estado:</span>
-                    <span className={`dashboard-orders-badge ${pedidoDetalle.estado === 'completado' ? 'dashboard-orders-badge-completed' :
-                      pedidoDetalle.estado === 'espera' ? 'dashboard-orders-badge-pending' :
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.status === 'completed' ? 'dashboard-orders-badge-completed' :
+                      pedidoDetalle.status === 'pending' ? 'dashboard-orders-badge-pending' :
                         'dashboard-orders-badge-processing'
                       }`}>
-                      {pedidoDetalle.estado === 'completado' ? 'Completado' :
-                        pedidoDetalle.estado === 'espera' ? 'En Espera' :
+                      {pedidoDetalle.status === 'completed' ? 'Completado' :
+                        pedidoDetalle.status === 'pending' ? 'En Espera' :
                           'Procesando'}
                     </span>
                   </div>
                   <div className="dashboard-orders-detail-row">
                     <span className="dashboard-orders-detail-label">Método de Pago:</span>
-                    <span className={`dashboard-orders-badge ${pedidoDetalle.metodoPago === 'online' ? 'dashboard-orders-badge-online' : 'dashboard-orders-badge-cash'
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.paymentMethod === 'credit-card' ? 'dashboard-orders-badge-credit-card' : 'dashboard-orders-badge-cash'
                       }`}>
-                      {pedidoDetalle.metodoPago === 'online' ? 'Pago Online' : 'Efectivo'}
+                      {pedidoDetalle.paymentMethod === 'yape' ? 'Pago con Yape' : 'Efectivo'}
                     </span>
                   </div>
                   <div className="dashboard-orders-detail-row">
                     <span className="dashboard-orders-detail-label">Estado del Pago:</span>
-                    <span className={`dashboard-orders-badge ${pedidoDetalle.pago === 'pagado' ? 'dashboard-orders-badge-completed' :
-                      pedidoDetalle.pago === 'pendiente' ? 'dashboard-orders-badge-pending' :
+                    <span className={`dashboard-orders-badge ${pedidoDetalle.paymentStatus === 'pagado' ? 'dashboard-orders-badge-completed' :
+                      pedidoDetalle.status === 'pending' ? 'dashboard-orders-badge-pending' :
                         'dashboard-orders-badge-processing'
                       }`}>
-                      {pedidoDetalle.pago === 'pagado' ? 'Pagado' :
-                        pedidoDetalle.pago === 'pendiente' ? 'Pendiente' :
+                      {pedidoDetalle.paymentStatus === 'pagado' ? 'Pagado' :
+                        pedidoDetalle.paymentStatus === 'pendiente' ? 'Pendiente' :
                           'Reembolsado'}
                     </span>
                   </div>
@@ -343,8 +347,8 @@ const Dashboard_Orders: React.FC = () => {
               <div className="dashboard-orders-detail-section">
                 <h4 className="dashboard-orders-detail-title">🛍️ Productos</h4>
                 <div className="dashboard-orders-detail-products">
-                  {pedidoDetalle.productos.map((producto, index) => (
-                    <div key={`${pedidoDetalle.id}-${producto.id}-${index}`} className="dashboard-orders-detail-product">
+                  {pedidoDetalle?.products?.map((producto, index) => (
+                    <div key={`${pedidoDetalle.id}-${producto.productId}-${index}`} className="dashboard-orders-detail-product">
                       <div className="dashboard-orders-detail-product-info">
                         <div className="dashboard-orders-detail-product-name">{producto.name}</div>
                         <div className="dashboard-orders-detail-product-quantity">

@@ -24,4 +24,6 @@ export interface Order {
         fullName?: string;
     };
     createdAt: string;
+    status?: 'pending' | 'processing' | 'completed' | 'cancelled';
+    paymentStatus?: 'pendiente' | 'pagado' | 'reembolsado';
 }

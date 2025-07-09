@@ -1,86 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Order } from '../../../../domain/entities/Order';
+import { app_DB } from '../../../../domain/services/firebaseConfig';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 
-export interface ProductoPedido {
-    id: number;
-    name: string;
-    quantity: number;
-    price: number;
-}
-
-export type EstadoPedido = 'espera' | 'procesando' | 'completado' | 'cancelado';
+export type EstadoPedido = 'pending' | 'espera' | 'procesando' | 'completado' | 'cancelado';
 export type EstadoPago = 'pendiente' | 'pagado' | 'reembolsado';
 export type MetodoPago = 'online' | 'efectivo';
 
-export interface Pedido {
-    id: string;
-    fecha: string;
-    cliente: {
-        nombre: string;
-        telefono: string;
-        email: string;
-    };
-    productos: ProductoPedido[];
-    estado: EstadoPedido;
-    pago: EstadoPago;
-    metodoPago: MetodoPago;
-    total: number;
-}
-
-const initialPedidos: Pedido[] = [
-    {
-        id: 'PED-001',
-        fecha: '06/07/2025 - 10:30',
-        cliente: {
-            nombre: 'Carlos Mendoza',
-            telefono: '+51 987 654 321',
-            email: 'carlos@email.com'
-        },
-        productos: [
-            { id: 1, name: 'iPhone 15 Pro Max', quantity: 1, price: 1299 },
-            { id: 5, name: 'Case Protector', quantity: 1, price: 25 }
-        ],
-        estado: 'completado',
-        pago: 'pagado',
-        metodoPago: 'online',
-        total: 1324
-    },
-    {
-        id: 'PED-002',
-        fecha: '06/07/2025 - 11:45',
-        cliente: {
-            nombre: 'Ana García',
-            telefono: '+51 912 345 678',
-            email: 'ana@email.com'
-        },
-        productos: [
-            { id: 2, name: 'Samsung Galaxy S24', quantity: 1, price: 899 },
-            { id: 6, name: 'Audífonos Wireless', quantity: 1, price: 129 }
-        ],
-        estado: 'espera',
-        pago: 'pendiente',
-        metodoPago: 'efectivo',
-        total: 1028
-    },
-    {
-        id: 'PED-003',
-        fecha: '06/07/2025 - 14:20',
-        cliente: {
-            nombre: 'Luis Rodríguez',
-            telefono: '+51 956 789 012',
-            email: 'luis@email.com'
-        },
-        productos: [
-            { id: 7, name: 'Xiaomi Mi 13', quantity: 2, price: 599 }
-        ],
-        estado: 'espera',
-        pago: 'pendiente',
-        metodoPago: 'online',
-        total: 1198
-    }
-];
-
-const useDashboardOrders = () => {
-    const [pedidos, setPedidos] = useState<Pedido[]>(initialPedidos);
+export const useDashboardOrders = () => {
+    const [pedidos, setPedidos] = useState<Order[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
     const [newStatus, setNewStatus] = useState<EstadoPedido>('espera');
@@ -89,25 +17,63 @@ const useDashboardOrders = () => {
     const [filtroPago, setFiltroPago] = useState<string>('');
     const [filtroFecha, setFiltroFecha] = useState<string>('');
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [pedidoDetalle, setPedidoDetalle] = useState<Pedido | null>(null);
+    const [pedidoDetalle, setPedidoDetalle] = useState<Order | null>(null);
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const snapshot = await getDocs(collection(app_DB, 'orders'));
+                const data: Order[] = snapshot.docs.map(doc => {
+                    const order = doc.data() as Order;
+                    return {
+                        ...order,
+                        id: doc.id,
+                    };
+                });
+                setPedidos(data);
+            } catch (error) {
+                console.error('Error al obtener pedidos de Firebase:', error);
+            }
+        };
+
+        fetchOrders();
+    }, []);
+
+    const traducirEstado = (estado?: Order['status']): EstadoPedido => {
+        switch (estado) {
+            case 'pending': return 'espera';
+            case 'processing': return 'procesando';
+            case 'completed': return 'completado';
+            case 'cancelled': return 'cancelado';
+            default: return 'espera';
+        }
+    };
+
+    const traducirPago = (pago?: Order['paymentStatus']): EstadoPago => pago || 'pendiente';
+    const traducirMetodo = (metodo: Order['paymentMethod']): MetodoPago =>
+        metodo === 'cash' ? 'efectivo' : 'online';
+    const hoy = new Date().toLocaleDateString('es-PE');
 
     // Estadísticas calculadas
     const pedidosTotales = pedidos.length;
-    const pedidosCompletados = pedidos.filter(p => p.estado === 'completado').length;
-    const pedidosEspera = pedidos.filter(p => p.estado === 'espera').length;
+    const pedidosCompletados = pedidos.filter(p => traducirEstado(p.status) === 'completado').length;
+    const pedidosEspera = pedidos.filter(p => traducirEstado(p.status) === 'espera').length;
     const ventasHoy = pedidos
-        .filter(p => p.fecha.includes('06/07/2025'))
+        .filter(p => new Date(p.createdAt).toLocaleDateString('es-PE').includes(hoy))
         .reduce((sum, p) => sum + p.total, 0);
 
     // Filtrar pedidos
     const pedidosFiltrados = pedidos.filter(pedido => {
+        const estadoTraducido = traducirEstado(pedido.status);
+        const metodoTraducido = traducirMetodo(pedido.paymentMethod);
+
         return (
-            (filtroEstado === '' || pedido.estado === filtroEstado) &&
-            (filtroPago === '' || pedido.metodoPago === filtroPago) &&
+            (filtroEstado === '' || estadoTraducido === filtroEstado) &&
+            (filtroPago === '' || metodoTraducido === filtroPago) &&
             (filtroFecha === '' || (
-                filtroFecha === 'hoy' ? pedido.fecha.includes('06/07/2025') :
-                    filtroFecha === 'semana' ? true : // Lógica para semana
-                        filtroFecha === 'mes' ? true : // Lógica para mes
+                filtroFecha === 'hoy' ? new Date(pedido.createdAt).toLocaleDateString('es-PE').includes(hoy) :
+                    filtroFecha === 'semana' ? true : // TODO
+                        filtroFecha === 'mes' ? true : // TODO
                             true
             ))
         );
@@ -137,24 +103,61 @@ const useDashboardOrders = () => {
     const cambiarEstado = (pedidoId: string) => {
         const pedido = pedidos.find(p => p.id === pedidoId);
         if (pedido) {
-            setNewStatus(pedido.estado);
-            setNewPaymentStatus(pedido.pago);
+            setNewStatus(traducirEstado(pedido.status));
+            setNewPaymentStatus(traducirPago(pedido.paymentStatus));
             setCurrentOrderId(pedidoId);
             setShowModal(true);
         }
     };
 
-    const actualizarPedido = (pedidoId: string, estado: EstadoPedido, pago: EstadoPago) => {
-        setPedidos(pedidos.map(pedido =>
-            pedido.id === pedidoId
-                ? { ...pedido, estado, pago }
-                : pedido
-        ));
+    const estadoLabels = {
+        processing: "Procesando",
+        pending: "En Espera",
+        completed: "Completado",
+        cancelled: "Cancelado",
     };
 
-    const marcarEntregado = (pedidoId: string) => {
+    const pagoLabels: Record<string, string> = {
+        online: 'Pago Online',
+        efectivo: 'Efectivo',
+        pagado: 'Pagado',
+        pendiente: 'Pendiente',
+        reembolsado: 'Reembolsado',
+    };
+
+    const actualizarPedido = async (pedidoId: string, estado: EstadoPedido, pago: EstadoPago) => {
+        const statusMap: Record<EstadoPedido, Order['status']> = {
+            espera: 'pending',
+            procesando: 'processing',
+            completado: 'completed',
+            cancelado: 'cancelled',
+            pending: 'pending',
+        };
+
+        const statusFirebase = statusMap[estado];
+
+        try {
+            const pedidoRef = doc(app_DB, 'orders', pedidoId);
+            await updateDoc(pedidoRef, {
+                status: statusFirebase,
+                paymentStatus: pago,
+            });
+            setPedidos(prev =>
+                prev.map(pedido =>
+                    pedido.id === pedidoId
+                        ? { ...pedido, status: statusFirebase, paymentStatus: pago }
+                        : pedido
+                )
+            );
+        } catch (error) {
+            console.error(`Error actualizando pedido ${pedidoId}:`, error);
+            alert('Error al actualizar el pedido en Firebase');
+        }
+    };
+
+    const marcarEntregado = async (pedidoId: string) => {
         if (confirm(`¿Confirmar que el pedido ${pedidoId} ha sido entregado?`)) {
-            actualizarPedido(pedidoId, 'completado', 'pagado');
+            await actualizarPedido(pedidoId, 'completado', 'pagado');
             alert(`Pedido ${pedidoId} marcado como entregado`);
         }
     };
@@ -196,7 +199,7 @@ const useDashboardOrders = () => {
     const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         if (['espera', 'procesando', 'completado', 'cancelado'].includes(value)) {
-            setNewStatus(value as 'espera' | 'procesando' | 'completado' | 'cancelado');
+            setNewStatus(value as EstadoPedido);
         }
     };
 
@@ -204,7 +207,7 @@ const useDashboardOrders = () => {
     const handlePaymentStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         if (['pendiente', 'pagado', 'reembolsado'].includes(value)) {
-            setNewPaymentStatus(value as 'pendiente' | 'pagado' | 'reembolsado');
+            setNewPaymentStatus(value as EstadoPago);
         }
     };
 
@@ -239,7 +242,7 @@ const useDashboardOrders = () => {
         pedidoDetalle,
         cerrarModalDetalle,
         handleDetailModalClick,
+        estadoLabels,
+        pagoLabels,
     };
 };
-
-export default useDashboardOrders;
