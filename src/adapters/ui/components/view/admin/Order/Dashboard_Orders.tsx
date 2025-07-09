@@ -57,7 +57,7 @@ const Dashboard_Orders: React.FC = () => {
             <div className="dashboard-orders-stat-label">En Espera</div>
           </div>
           <div className="dashboard-orders-stat-card">
-            <div className="dashboard-orders-stat-number">${ventasHoy.toFixed(2)}</div>
+            <div className="dashboard-orders-stat-number">S/.{ventasHoy.toFixed(2)}</div>
             <div className="dashboard-orders-stat-label">Ventas Hoy</div>
           </div>
         </div>
