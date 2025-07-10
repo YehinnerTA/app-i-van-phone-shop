@@ -3,6 +3,19 @@ import { collection, getDocs } from 'firebase/firestore';
 import { app_DB } from '../../../../domain/services/firebaseConfig';
 import { Order } from '../../../../domain/entities/Order';
 
+export const esHoy = (fecha: string | Date) => {
+    const fechaDate = new Date(fecha);
+    const hoy = new Date();
+    return (
+        fechaDate.getDate() === hoy.getDate() &&
+        fechaDate.getMonth() === hoy.getMonth() &&
+        fechaDate.getFullYear() === hoy.getFullYear()
+    );
+};
+
+export const ORDER_STATUSES = ['En Espera', 'procesado', 'completo'] as const;
+export const PAYMENT_STATUSES = ['pendiente', 'pagado', 'reembolsado'] as const;
+
 const useDashboardOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [showModal, setShowModal] = useState(false);
@@ -15,24 +28,13 @@ const useDashboardOrders = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [orderDetail, setOrderDetail] = useState<Order | null>(null);
 
-    console.log("Total pedidos:", orders.length);
-    console.log("Pedidos con estado:", filtroEstado, orders.filter(order => order.status === filtroEstado).length);
-    console.log("Pedidos con método de pago:", filtroPago, orders.filter(order => order.paymentMethod === filtroPago).length);
-    console.log("Pedidos con fecha:", filtroFecha, orders.filter(order => {
-        if (filtroFecha === 'hoy') {
-            return new Date(order.createdAt).toLocaleDateString() === '06/07/2025';
-        }
-        return true;
-    }).length);
-
-
     const fetchOrders = async () => {
         const snapshot = await getDocs(collection(app_DB, 'orders'));
         const fetchedOrders: Order[] = [];
 
         snapshot.forEach(doc => {
             const data = doc.data();
-
+            console.log("Pedido crudo:", data);
             fetchedOrders.push({
                 id: doc.id,
                 userId: data.userId || '',
@@ -65,7 +67,7 @@ const useDashboardOrders = () => {
                 paymentStatus: data.paymentStatus || 'pendiente',
             });
         });
-
+        console.log("Pedidos parseados:", fetchedOrders);
         setOrders(fetchedOrders);
     };
 
@@ -78,41 +80,24 @@ const useDashboardOrders = () => {
     const pedidosCompletados = orders.filter(o => o.status === 'completo').length;
     const pedidosEspera = orders.filter(o => o.status === 'En Espera').length;
     const ventasHoy = orders
-        .filter(o => new Date(o.createdAt).toLocaleDateString() === '06/07/2025') // Puedes cambiar esto a dinámico
+        .filter(o => esHoy(o.createdAt))
         .reduce((acc, o) => acc + o.total, 0);
 
-    const ordersFiltrados = orders.filter(order =>
+    const pedidosFiltrados = orders.filter(order =>
         (filtroEstado === '' || order.status === filtroEstado) &&
         (filtroPago === '' || order.paymentMethod === filtroPago) &&
         (filtroFecha === '' || (
-            filtroFecha === 'hoy'
-                ? new Date(order.createdAt).toLocaleDateString() === '06/07/2025'
-                : true
+            filtroFecha === 'hoy' ? esHoy(order.createdAt) : true
         ))
     );
 
-    const mostrarPedidos = ordersFiltrados.length > 0
-        ? ordersFiltrados
-        : [{
-            id: 'sin-datos',
-            userId: 'falta dato',
-            userEmail: 'falta dato',
-            products: [],
-            subtotal: 0,
-            discount: 0,
-            total: 0,
-            paymentMethod: 'falta dato',
-            paymentDetails: {
-                cardNumber: 'falta dato',
-                expiration: 'falta dato',
-                cvv: 'falta dato',
-                phone: 'falta dato',
-                fullName: 'falta dato'
-            },
-            createdAt: new Date().toISOString(),
-            status: 'falta dato',
-            paymentStatus: 'falta dato'
-        }];
+    const mostrarPedidos = pedidosFiltrados;
+
+    const resetFiltros = () => {
+        setFiltroEstado('');
+        setFiltroPago('');
+        setFiltroFecha('');
+    };
 
     // Funciones para manipular pedidos
     const verDetalle = (orderId: string) => {
@@ -208,7 +193,7 @@ const useDashboardOrders = () => {
     return {
         handleStatusChange,
         handlePaymentStatusChange,
-        pedidosFiltrados: ordersFiltrados,
+        pedidosFiltrados: pedidosFiltrados,
         setPedidos: setOrders,
         showModal,
         currentOrderId,
@@ -237,6 +222,7 @@ const useDashboardOrders = () => {
         cerrarModalDetalle,
         handleDetailModalClick,
         mostrarPedidos,
+        resetFiltros,
     };
 };
 

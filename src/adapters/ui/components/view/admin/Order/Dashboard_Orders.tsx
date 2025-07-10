@@ -31,7 +31,8 @@ const Dashboard_Orders: React.FC = () => {
     filtroPago,
     setFiltroPago,
     filtroFecha,
-    setFiltroFecha
+    setFiltroFecha,
+    resetFiltros
   } = useDashboardOrders();
 
   return (
@@ -107,6 +108,10 @@ const Dashboard_Orders: React.FC = () => {
                 <option value="mes">Este mes</option>
               </select>
             </div>
+
+            <button onClick={resetFiltros} className="btn btn-secondary-filter">
+              Quitar filtros
+            </button>
           </div>
         </div>
 
