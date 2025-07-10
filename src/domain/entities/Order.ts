@@ -15,7 +15,7 @@ export interface Order {
     subtotal: number;
     discount: number;
     total: number;
-    paymentMethod: 'credit-card' | 'yape' | 'cash';
+    paymentMethod: "credit-card" | "yape" | "efectivo";
     paymentDetails: {
         cardNumber?: string;
         expiration?: string;
@@ -24,6 +24,6 @@ export interface Order {
         fullName?: string;
     };
     createdAt: string;
-    status?: 'pending' | 'processing' | 'completed' | 'cancelled';
-    paymentStatus?: 'pendiente' | 'pagado' | 'reembolsado';
+    status?: "En Espera" | "procesado" | "completo" | "cancelado";
+    paymentStatus?: "pendiente" | "pagado" | "reembolsado";
 }

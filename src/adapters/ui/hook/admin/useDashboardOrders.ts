@@ -1,89 +1,124 @@
 import { useEffect, useState } from 'react';
-import { Order } from '../../../../domain/entities/Order';
+import { collection, getDocs } from 'firebase/firestore';
 import { app_DB } from '../../../../domain/services/firebaseConfig';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { Order } from '../../../../domain/entities/Order';
 
-export type EstadoPedido = 'pending' | 'espera' | 'procesando' | 'completado' | 'cancelado';
-export type EstadoPago = 'pendiente' | 'pagado' | 'reembolsado';
-export type MetodoPago = 'online' | 'efectivo';
-
-export const useDashboardOrders = () => {
-    const [pedidos, setPedidos] = useState<Order[]>([]);
+const useDashboardOrders = () => {
+    const [orders, setOrders] = useState<Order[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-    const [newStatus, setNewStatus] = useState<EstadoPedido>('espera');
-    const [newPaymentStatus, setNewPaymentStatus] = useState<EstadoPago>('pendiente');
+    const [newStatus, setNewStatus] = useState<Order['status']>('En Espera');
+    const [newPaymentStatus, setNewPaymentStatus] = useState<Order['paymentStatus']>('pendiente');
     const [filtroEstado, setFiltroEstado] = useState<string>('');
     const [filtroPago, setFiltroPago] = useState<string>('');
     const [filtroFecha, setFiltroFecha] = useState<string>('');
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [pedidoDetalle, setPedidoDetalle] = useState<Order | null>(null);
+    const [orderDetail, setOrderDetail] = useState<Order | null>(null);
+
+    console.log("Total pedidos:", orders.length);
+    console.log("Pedidos con estado:", filtroEstado, orders.filter(order => order.status === filtroEstado).length);
+    console.log("Pedidos con método de pago:", filtroPago, orders.filter(order => order.paymentMethod === filtroPago).length);
+    console.log("Pedidos con fecha:", filtroFecha, orders.filter(order => {
+        if (filtroFecha === 'hoy') {
+            return new Date(order.createdAt).toLocaleDateString() === '06/07/2025';
+        }
+        return true;
+    }).length);
+
+
+    const fetchOrders = async () => {
+        const snapshot = await getDocs(collection(app_DB, 'orders'));
+        const fetchedOrders: Order[] = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+
+            fetchedOrders.push({
+                id: doc.id,
+                userId: data.userId || '',
+                userEmail: data.userEmail || '',
+                products: Array.isArray(data.products)
+                    ? data.products.map((p: Order['products'][number]) => ({
+                        productId: p.productId || '',
+                        name: p.name || '',
+                        image: p.image || '',
+                        category: p.category || '',
+                        memory: p.memory || '',
+                        quantity: p.quantity || 0,
+                        price: p.price || 0,
+                        totalPrice: p.totalPrice || 0,
+                    }))
+                    : [],
+                subtotal: typeof data.subtotal === 'number' ? data.subtotal : 0,
+                discount: typeof data.discount === 'number' ? data.discount : 0,
+                total: typeof data.total === 'number' ? data.total : 0,
+                paymentMethod: data.paymentMethod || 'efectivo',
+                paymentDetails: {
+                    cardNumber: data.paymentDetails?.cardNumber || '',
+                    expiration: data.paymentDetails?.expiration || '',
+                    cvv: data.paymentDetails?.cvv || '',
+                    phone: data.paymentDetails?.phone || '',
+                    fullName: data.paymentDetails?.fullName || '',
+                },
+                createdAt: data.createdAt || new Date().toISOString(),
+                status: data.status || 'En Espera',
+                paymentStatus: data.paymentStatus || 'pendiente',
+            });
+        });
+
+        setOrders(fetchedOrders);
+    };
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const snapshot = await getDocs(collection(app_DB, 'orders'));
-                const data: Order[] = snapshot.docs.map(doc => {
-                    const order = doc.data() as Order;
-                    return {
-                        ...order,
-                        id: doc.id,
-                    };
-                });
-                setPedidos(data);
-            } catch (error) {
-                console.error('Error al obtener pedidos de Firebase:', error);
-            }
-        };
-
         fetchOrders();
     }, []);
 
-    const traducirEstado = (estado?: Order['status']): EstadoPedido => {
-        switch (estado) {
-            case 'pending': return 'espera';
-            case 'processing': return 'procesando';
-            case 'completed': return 'completado';
-            case 'cancelled': return 'cancelado';
-            default: return 'espera';
-        }
-    };
+    // Estadísticas
+    const pedidosTotales = orders.length;
+    const pedidosCompletados = orders.filter(o => o.status === 'completo').length;
+    const pedidosEspera = orders.filter(o => o.status === 'En Espera').length;
+    const ventasHoy = orders
+        .filter(o => new Date(o.createdAt).toLocaleDateString() === '06/07/2025') // Puedes cambiar esto a dinámico
+        .reduce((acc, o) => acc + o.total, 0);
 
-    const traducirPago = (pago?: Order['paymentStatus']): EstadoPago => pago || 'pendiente';
-    const traducirMetodo = (metodo: Order['paymentMethod']): MetodoPago =>
-        metodo === 'cash' ? 'efectivo' : 'online';
-    const hoy = new Date().toLocaleDateString('es-PE');
+    const ordersFiltrados = orders.filter(order =>
+        (filtroEstado === '' || order.status === filtroEstado) &&
+        (filtroPago === '' || order.paymentMethod === filtroPago) &&
+        (filtroFecha === '' || (
+            filtroFecha === 'hoy'
+                ? new Date(order.createdAt).toLocaleDateString() === '06/07/2025'
+                : true
+        ))
+    );
 
-    // Estadísticas calculadas
-    const pedidosTotales = pedidos.length;
-    const pedidosCompletados = pedidos.filter(p => traducirEstado(p.status) === 'completado').length;
-    const pedidosEspera = pedidos.filter(p => traducirEstado(p.status) === 'espera').length;
-    const ventasHoy = pedidos
-        .filter(p => new Date(p.createdAt).toLocaleDateString('es-PE').includes(hoy))
-        .reduce((sum, p) => sum + p.total, 0);
-
-    // Filtrar pedidos
-    const pedidosFiltrados = pedidos.filter(pedido => {
-        const estadoTraducido = traducirEstado(pedido.status);
-        const metodoTraducido = traducirMetodo(pedido.paymentMethod);
-
-        return (
-            (filtroEstado === '' || estadoTraducido === filtroEstado) &&
-            (filtroPago === '' || metodoTraducido === filtroPago) &&
-            (filtroFecha === '' || (
-                filtroFecha === 'hoy' ? new Date(pedido.createdAt).toLocaleDateString('es-PE').includes(hoy) :
-                    filtroFecha === 'semana' ? true : // TODO
-                        filtroFecha === 'mes' ? true : // TODO
-                            true
-            ))
-        );
-    });
+    const mostrarPedidos = ordersFiltrados.length > 0
+        ? ordersFiltrados
+        : [{
+            id: 'sin-datos',
+            userId: 'falta dato',
+            userEmail: 'falta dato',
+            products: [],
+            subtotal: 0,
+            discount: 0,
+            total: 0,
+            paymentMethod: 'falta dato',
+            paymentDetails: {
+                cardNumber: 'falta dato',
+                expiration: 'falta dato',
+                cvv: 'falta dato',
+                phone: 'falta dato',
+                fullName: 'falta dato'
+            },
+            createdAt: new Date().toISOString(),
+            status: 'falta dato',
+            paymentStatus: 'falta dato'
+        }];
 
     // Funciones para manipular pedidos
-    const verDetalle = (pedidoId: string) => {
-        const pedido = pedidos.find(p => p.id === pedidoId);
+    const verDetalle = (orderId: string) => {
+        const pedido = orders.find(o => o.id === orderId);
         if (pedido) {
-            setPedidoDetalle(pedido);
+            setOrderDetail(pedido);
             setShowDetailModal(true);
         }
     };
@@ -91,7 +126,7 @@ export const useDashboardOrders = () => {
     // Agregar estas nuevas funciones
     const cerrarModalDetalle = () => {
         setShowDetailModal(false);
-        setPedidoDetalle(null);
+        setOrderDetail(null);
     };
 
     const handleDetailModalClick = (e: React.MouseEvent) => {
@@ -100,79 +135,40 @@ export const useDashboardOrders = () => {
         }
     };
 
-    const cambiarEstado = (pedidoId: string) => {
-        const pedido = pedidos.find(p => p.id === pedidoId);
+    const cambiarEstado = (orderId: string) => {
+        const pedido = orders.find(o => o.id === orderId);
         if (pedido) {
-            setNewStatus(traducirEstado(pedido.status));
-            setNewPaymentStatus(traducirPago(pedido.paymentStatus));
-            setCurrentOrderId(pedidoId);
+            setNewStatus(pedido.status || 'En Espera');
+            setNewPaymentStatus(pedido.paymentStatus || 'pendiente');
+            setCurrentOrderId(orderId);
             setShowModal(true);
         }
     };
 
-    const estadoLabels = {
-        processing: "Procesando",
-        pending: "En Espera",
-        completed: "Completado",
-        cancelled: "Cancelado",
+    const actualizarPedido = (orderId: string, status: Order['status'], paymentStatus: Order['paymentStatus']) => {
+        setOrders(orders.map(order =>
+            order.id === orderId ? { ...order, status, paymentStatus } : order
+        ));
     };
 
-    const pagoLabels: Record<string, string> = {
-        online: 'Pago Online',
-        efectivo: 'Efectivo',
-        pagado: 'Pagado',
-        pendiente: 'Pendiente',
-        reembolsado: 'Reembolsado',
-    };
-
-    const actualizarPedido = async (pedidoId: string, estado: EstadoPedido, pago: EstadoPago) => {
-        const statusMap: Record<EstadoPedido, Order['status']> = {
-            espera: 'pending',
-            procesando: 'processing',
-            completado: 'completed',
-            cancelado: 'cancelled',
-            pending: 'pending',
-        };
-
-        const statusFirebase = statusMap[estado];
-
-        try {
-            const pedidoRef = doc(app_DB, 'orders', pedidoId);
-            await updateDoc(pedidoRef, {
-                status: statusFirebase,
-                paymentStatus: pago,
-            });
-            setPedidos(prev =>
-                prev.map(pedido =>
-                    pedido.id === pedidoId
-                        ? { ...pedido, status: statusFirebase, paymentStatus: pago }
-                        : pedido
-                )
-            );
-        } catch (error) {
-            console.error(`Error actualizando pedido ${pedidoId}:`, error);
-            alert('Error al actualizar el pedido en Firebase');
+    const marcarEntregado = (orderId: string) => {
+        if (confirm(`¿Confirmar que el pedido ${orderId} ha sido entregado?`)) {
+            actualizarPedido(orderId, 'completo', 'pagado');
+            alert(`Pedido ${orderId} marcado como entregado`);
         }
     };
 
-    const marcarEntregado = async (pedidoId: string) => {
-        if (confirm(`¿Confirmar que el pedido ${pedidoId} ha sido entregado?`)) {
-            await actualizarPedido(pedidoId, 'completado', 'pagado');
-            alert(`Pedido ${pedidoId} marcado como entregado`);
+    const confirmarPago = (orderId: string) => {
+        if (confirm(`¿Confirmar el pago del pedido ${orderId}?`)) {
+            actualizarPedido(orderId, 'procesado', 'pagado');
+            alert(`Pago del pedido ${orderId} confirmado`);
         }
     };
 
-    const confirmarPago = (pedidoId: string) => {
-        if (confirm(`¿Confirmar el pago del pedido ${pedidoId}?`)) {
-            actualizarPedido(pedidoId, 'procesando', 'pagado');
-            alert(`Pago del pedido ${pedidoId} confirmado`);
-        }
-    };
-
-    const procesarPedido = (pedidoId: string) => {
-        if (confirm(`¿Iniciar el procesamiento del pedido ${pedidoId}?`)) {
-            actualizarPedido(pedidoId, 'procesando', 'pagado');
-            alert(`Procesando pedido ${pedidoId}`);
+    const procesarPedido = (orderId: string) => {
+        if (confirm(`¿Iniciar el procesamiento del pedido ${orderId}?`)) {
+            actualizarPedido(orderId, 'procesado', 'pagado');
+            alert(`Procesando pedido ${orderId}`);
         }
     };
 
@@ -197,25 +193,23 @@ export const useDashboardOrders = () => {
 
     // Función para manejar el cambio de estado con validación de tipos
     const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value;
-        if (['espera', 'procesando', 'completado', 'cancelado'].includes(value)) {
-            setNewStatus(value as EstadoPedido);
-        }
+        const value = e.target.value as Order['status'];
+        setNewStatus(value);
     };
 
     // Función para manejar el cambio de estado de pago con validación de tipos
     const handlePaymentStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         if (['pendiente', 'pagado', 'reembolsado'].includes(value)) {
-            setNewPaymentStatus(value as EstadoPago);
+            setNewPaymentStatus(value as 'pendiente' | 'pagado' | 'reembolsado');
         }
     };
 
     return {
         handleStatusChange,
         handlePaymentStatusChange,
-        pedidosFiltrados,
-        setPedidos,
+        pedidosFiltrados: ordersFiltrados,
+        setPedidos: setOrders,
         showModal,
         currentOrderId,
         newStatus,
@@ -239,10 +233,11 @@ export const useDashboardOrders = () => {
         filtroFecha,
         setFiltroFecha,
         showDetailModal,
-        pedidoDetalle,
+        pedidoDetalle: orderDetail,
         cerrarModalDetalle,
         handleDetailModalClick,
-        estadoLabels,
-        pagoLabels,
+        mostrarPedidos,
     };
 };
+
+export default useDashboardOrders;

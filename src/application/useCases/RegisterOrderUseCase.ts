@@ -8,7 +8,7 @@ export const registerOrderUseCase = async (orderData: OrderRegisterDto): Promise
         const docRef = await addDoc(ordersCollection, {
             ...orderData,
             createdAt: new Date().toISOString(),
-            status: 'pending',
+            status: 'En Espera',
         });
         return docRef.id;
     } catch (error) {
