@@ -105,12 +105,16 @@
   transition: all 0.3s ease;
 }
 
-.dashboard-product-card-image {
-  height: 200px;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.dashboard-product-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.dashboard-product-detail-image {
+  max-Width: 100%;
+  border-Radius: 8px;
 }
 
 .dashboard-product-card-placeholder {

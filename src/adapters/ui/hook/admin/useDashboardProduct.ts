@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { app_DB } from '../../../../domain/services/firebaseConfig';
 import { ProductRegisterDto } from '../../../../application/dtos/ProductRegisterDto';
+
+export interface ProductDto extends ProductRegisterDto {
+    id: string;
+}
 
 const useDashboardProduct = () => {
     const [modalState, setModalState] = useState({
         add: false,
         details: false,
-        delete: false
+        delete: false,
+        edit: false
     });
     const [selectedProduct, setSelectedProduct] = useState<(ProductRegisterDto & { id: string }) | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,16 +25,21 @@ const useDashboardProduct = () => {
         stock: 0,
         description: ''
     });
+    const [editProduct, setEditProduct] = useState<ProductDto | null>(null);
 
     // Abrir modales
-    const openAddModal = () => setModalState({ add: true, details: false, delete: false });
+    const openAddModal = () => setModalState({ add: true, details: false, delete: false, edit: false });
     const openDetailsModal = (product: ProductRegisterDto & { id: string }) => {
         setSelectedProduct(product);
-        setModalState({ add: false, details: true, delete: false });
+        setModalState({ add: false, details: true, delete: false, edit: false });
     };
     const openDeleteModal = (product: ProductRegisterDto & { id: string }) => {
         setSelectedProduct(product);
-        setModalState({ add: false, details: false, delete: true });
+        setModalState({ add: false, details: false, delete: true, edit: false });
+    };
+    const openEditModal = (product: ProductRegisterDto & { id: string }) => {
+        setEditProduct(product);
+        setModalState({ add: false, details: false, delete: false, edit: true });
     };
 
     // Cerrar modales
@@ -44,6 +54,10 @@ const useDashboardProduct = () => {
     const closeDeleteModal = () => {
         setModalState(prev => ({ ...prev, delete: false }));
         setSelectedProduct(null);
+    };
+    const closeEditModal = () => {
+        setModalState(prev => ({ ...prev, edit: false }));
+        setEditProduct(null);
     };
 
     const handleModalBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -117,6 +131,24 @@ const useDashboardProduct = () => {
         }
     };
 
+    const handleEditInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => {
+        const { name, value } = e.target;
+        setEditProduct(prev =>
+            prev
+                ? {
+                    ...prev,
+                    [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
+                }
+                : null
+        );
+    };
+
+    // Validar si una URL es de imagen
+    const isValidImageUrl = (url: string): boolean => {
+        return /^https?:\/\/.*\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+    };
 
     // Eliminar producto
     const handleDeleteProduct = async () => {
@@ -131,7 +163,6 @@ const useDashboardProduct = () => {
             }
         }
     };
-
 
     // Filtrar productos por búsqueda y categoría
     const filteredProducts = products.filter(p =>
@@ -167,6 +198,29 @@ const useDashboardProduct = () => {
         return map[category] || category;
     };
 
+    const handleUpdateProduct = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!editProduct) return;
+
+        const { id, ...updatedData } = editProduct;
+
+        if (updatedData.image && !isValidImageUrl(updatedData.image)) {
+            alert('La URL de la imagen no es válida. Asegúrate de que sea un enlace directo a una imagen (.jpg, .png, etc).');
+            return;
+        }
+
+        try {
+            const productRef = doc(app_DB, 'products', id);
+            await updateDoc(productRef, updatedData);
+            closeEditModal();
+            fetchProducts();
+        } catch (error) {
+            console.error('Error al actualizar producto:', error);
+            alert('Ocurrió un error al actualizar el producto');
+        }
+    };
+
     return {
         formatCategoryName,
         getProductIcon,
@@ -192,7 +246,14 @@ const useDashboardProduct = () => {
         totalProducts,
         lowStockProducts,
         phonesCount,
-        accessoriesCount
+        accessoriesCount,
+        openEditModal,
+        closeEditModal,
+        handleEditInputChange,
+        handleUpdateProduct,
+        editProduct,
+        setEditProduct,
+        isValidImageUrl,
     };
 };
 

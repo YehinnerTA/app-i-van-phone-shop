@@ -19,6 +19,10 @@ export const useDashboardInventory = () => {
     const [changeReason, setChangeReason] = useState('Reposición de inventario');
     const [comments, setComments] = useState('');
 
+    const isValidImageUrl = (url: string): boolean => {
+        return /^https?:\/\/.*\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+    };
+
     // Estadísticas calculadas
     const activeProducts = products.length;
     const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 5).length;
@@ -141,6 +145,16 @@ export const useDashboardInventory = () => {
         return 'dashboard-inventory-stock-high';
     };
 
+    const getProductIcon = (category: string) => {
+        switch (category) {
+            case 'celulares': return '📱';
+            case 'audifonos': return '🎧';
+            case 'accesorios': return '🛍️';
+            case 'casos': return '📦';
+            default: return '🛍️';
+        }
+    };
+
     return {
         products,
         searchTerm,
@@ -165,6 +179,8 @@ export const useDashboardInventory = () => {
         handleSearchChange,
         handleCategoryFilterChange,
         handleStockStatusFilterChange,
-        getStockBadgeClass
+        getStockBadgeClass,
+        isValidImageUrl,
+        getProductIcon,
     };
 };

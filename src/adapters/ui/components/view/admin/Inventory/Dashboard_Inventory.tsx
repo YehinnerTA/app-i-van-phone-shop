@@ -26,7 +26,9 @@ const Dashboard_Inventory: React.FC = () => {
     handleSearchChange,
     handleCategoryFilterChange,
     handleStockStatusFilterChange,
-    getStockBadgeClass
+    getStockBadgeClass,
+    isValidImageUrl,
+    getProductIcon,
   } = useDashboardInventory();
 
   return (
@@ -104,7 +106,13 @@ const Dashboard_Inventory: React.FC = () => {
             <div key={product.id} className="dashboard-inventory-product">
               <div className={`dashboard-inventory-status-indicator dashboard-inventory-status-${product.status}`}></div>
               <div className="dashboard-inventory-product-header">
-                <div className="dashboard-inventory-product-image">{product.image}</div>
+                {product.image && isValidImageUrl(product.image) ? (
+                  <img src={product.image} alt={product.name} className="dashboard-inventory-img" />
+                ) : (
+                  <div className="dashboard-inventory-placeholder">
+                    {getProductIcon(product.category)}
+                  </div>
+                )}
                 <div className="dashboard-inventory-product-info">
                   <div className="dashboard-inventory-product-name">{product.name}</div>
                   <div className="dashboard-inventory-product-category">{product.category}</div>
